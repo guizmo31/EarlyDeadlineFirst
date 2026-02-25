@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDF Scheduler Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Early Deadline First — Scheduler Simulator</h1>
+    </header>
+
+    <main>
+        <section id="config-panel">
+            <h2>Configuration</h2>
+
+            <div class="config-row">
+                <label for="tick-period">Tick Period (ms):</label>
+                <input type="number" id="tick-period" value="1" min="1">
+            </div>
+
+            <div class="config-row">
+                <label for="sim-duration">Simulation Duration (ms):</label>
+                <input type="number" id="sim-duration" value="120" min="1">
+            </div>
+
+            <div class="config-row">
+                <label for="num-cores">CPU Cores:</label>
+                <input type="number" id="num-cores" value="1" min="1" max="16">
+            </div>
+
+            <div class="config-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="fixed-partitioning">
+                    Fixed Partitioning
+                </label>
+                <span class="config-hint" title="Once a process starts on a core, it stays there (no migration)">?</span>
+            </div>
+
+            <h3>Processes</h3>
+            <div id="process-list"></div>
+
+            <button id="add-process-btn" class="btn btn-secondary">+ Add Process</button>
+
+            <div class="actions">
+                <button id="simulate-btn" class="btn btn-primary">Simulate</button>
+            </div>
+
+            <div id="stats" class="hidden">
+                <h3>Statistics</h3>
+                <p>Theoretical Utilization: <span id="cpu-util"></span></p>
+                <p>Cores: <span id="cores-info"></span></p>
+                <div id="per-core-stats"></div>
+                <p>Global CPU Used: <span id="cpu-total"></span></p>
+                <p>Deadline Misses: <span id="deadline-misses"></span></p>
+            </div>
+
+            <div id="error-box" class="hidden"></div>
+        </section>
+
+        <section id="chart-panel">
+            <h2>Schedule (Gantt Chart)</h2>
+            <div id="chart-container">
+                <canvas id="gantt-canvas"></canvas>
+            </div>
+            <div id="tooltip" class="hidden"></div>
+            <div id="legend"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

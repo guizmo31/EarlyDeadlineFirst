@@ -1,0 +1,3 @@
+[workspace]
+members = ["edf-core", "edf-server"]
+resolver = "2"

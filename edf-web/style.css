@@ -1,0 +1,368 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+header {
+    background: #16213e;
+    padding: 16px 24px;
+    border-bottom: 2px solid #0f3460;
+}
+
+header h1 {
+    font-size: 1.4rem;
+    color: #e94560;
+}
+
+main {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    height: calc(100vh - 60px);
+}
+
+#config-panel {
+    width: 450px;
+    min-width: 300px;
+    max-width: 700px;
+    background: #16213e;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-y: auto;
+    resize: horizontal;
+    overflow-x: hidden;
+}
+
+#config-panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: #e94560;
+}
+
+#config-panel h3 {
+    font-size: 0.95rem;
+    margin: 12px 0 8px;
+    color: #a0a0c0;
+}
+
+.config-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.config-row label {
+    flex: 0 0 auto;
+    font-size: 0.85rem;
+}
+
+.config-row input {
+    flex: 1;
+    max-width: 100px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    accent-color: #e94560;
+    cursor: pointer;
+    width: auto;
+    max-width: none;
+}
+
+.config-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #533483;
+    color: #e0e0e0;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: help;
+    flex-shrink: 0;
+}
+
+input[type="number"], input[type="text"] {
+    background: #0f3460;
+    border: 1px solid #533483;
+    color: #e0e0e0;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+input[type="number"]:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: #e94560;
+}
+
+.process-entry {
+    background: #0f3460;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.process-entry .process-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.process-entry .process-header input[type="color"] {
+    width: 30px;
+    height: 30px;
+    padding: 1px;
+    border: 2px solid #533483;
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.process-entry .process-header input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+.process-entry .process-header input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+.process-entry .process-header input[type="text"] {
+    font-weight: bold;
+    font-size: 0.9rem;
+    max-width: 160px;
+}
+
+.process-entry .process-fields {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto 1fr;
+    gap: 4px 6px;
+    font-size: 0.8rem;
+    align-items: center;
+}
+
+.process-entry .process-fields label {
+    color: #a0a0c0;
+}
+
+.process-entry .process-fields input {
+    width: 100%;
+}
+
+.process-pinning {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+}
+
+.process-pinning .pin-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #a0a0c0;
+    cursor: pointer;
+}
+
+.process-pinning .pin-label input[type="checkbox"] {
+    accent-color: #e94560;
+    cursor: pointer;
+}
+
+.process-pinning .pin-core-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #a0a0c0;
+}
+
+.process-pinning .pin-core-label input {
+    width: 50px;
+}
+
+.btn-remove {
+    background: #e94560;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-remove:hover {
+    background: #ff6b81;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-primary {
+    background: #e94560;
+    color: white;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.btn-primary:hover {
+    background: #ff6b81;
+}
+
+.btn-secondary {
+    background: #533483;
+    color: white;
+    width: 100%;
+}
+
+.btn-secondary:hover {
+    background: #6b44a0;
+}
+
+.actions {
+    margin-top: 8px;
+}
+
+#stats {
+    margin-top: 16px;
+    padding: 12px;
+    background: #0f3460;
+    border-radius: 6px;
+}
+
+#stats p {
+    font-size: 0.85rem;
+    margin: 4px 0;
+}
+
+#per-core-stats {
+    margin: 6px 0;
+    padding: 6px 8px;
+    background: #0a1830;
+    border-radius: 4px;
+}
+
+#per-core-stats .per-core-line {
+    font-size: 0.8rem;
+    margin: 2px 0;
+    color: #a0c0e0;
+}
+
+#error-box {
+    margin-top: 12px;
+    padding: 10px;
+    background: #5c1a1a;
+    border: 1px solid #e94560;
+    border-radius: 6px;
+    color: #ff9999;
+    font-size: 0.85rem;
+}
+
+#chart-panel {
+    flex: 1;
+    background: #16213e;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#chart-panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: #e94560;
+}
+
+#chart-container {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background: #0f1e3d;
+    border-radius: 6px;
+    border: 1px solid #533483;
+}
+
+#gantt-canvas {
+    display: block;
+}
+
+#tooltip {
+    position: fixed;
+    background: #16213e;
+    border: 1px solid #e94560;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    pointer-events: none;
+    z-index: 100;
+    max-width: 250px;
+}
+
+#legend {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.utilization-warning {
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+.utilization-overload {
+    color: #e94560;
+    font-weight: bold;
+}

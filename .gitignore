@@ -1,0 +1,19 @@
+# Rust build artifacts
+/target/
+**/target/
+
+# Cargo lock for libraries (keep for binaries/workspace)
+# Cargo.lock is kept since this is a workspace with a binary
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
