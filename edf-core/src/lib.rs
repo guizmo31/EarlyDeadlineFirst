@@ -1,3 +1,8 @@
+// Copyright (c) 2026 Ivan LE HIN
+// Licensed under CC BY-NC-SA 4.0 — Non-commercial use only.
+// For commercial licensing, contact the author.
+// https://creativecommons.org/licenses/by-nc-sa/4.0/
+
 use serde::{Deserialize, Serialize};
 
 /// Configuration for a single process/task.

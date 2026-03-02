@@ -234,4 +234,12 @@ cd edf-builder/mcp-server && npm install
 
 ## License
 
-MIT
+This project is licensed under **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International** (CC BY-NC-SA 4.0).
+
+- **Attribution**: You must credit **Ivan LE HIN** as the original author.
+- **NonCommercial**: You may not use this project for commercial purposes without explicit permission.
+- **ShareAlike**: Any modifications must be distributed under the same license.
+
+For commercial licensing inquiries, contact **Ivan LE HIN** via [GitHub](https://github.com/guizmo31).
+
+Full license: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)

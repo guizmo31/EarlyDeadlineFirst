@@ -1,3 +1,8 @@
+// Copyright (c) 2026 Ivan LE HIN
+// Licensed under CC BY-NC-SA 4.0 — Non-commercial use only.
+// For commercial licensing, contact the author.
+// https://creativecommons.org/licenses/by-nc-sa/4.0/
+
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, middleware};
