@@ -1,0 +1,478 @@
+{
+  "version": "2.0",
+  "name": "topology-multi-branches",
+  "savedAt": "2026-03-02T16:28:41.469Z",
+  "modules": [
+    {
+      "id": "id-1",
+      "name": "Buffer",
+      "inputs": 1,
+      "outputs": 1,
+      "period": 0,
+      "execTime": 0,
+      "uuid": "83382e74-8746-4549-bbc6-7576942ed071",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "in-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "out-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 0,
+      "bcet_us": 0,
+      "typical_us": 0,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    },
+    {
+      "id": "id-2",
+      "name": "Mod1",
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 10,
+      "uuid": "7d299d79-dda7-4a1b-ab5d-4e3ee8df173f",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "in-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "out-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 10000,
+      "bcet_us": 0,
+      "typical_us": 5000,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    },
+    {
+      "id": "id-3",
+      "name": "Mod2",
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 5,
+      "uuid": "20cc5241-b658-48db-a051-41903e7a14c7",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "in-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "out-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 5000,
+      "bcet_us": 0,
+      "typical_us": 2500,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    },
+    {
+      "id": "id-4",
+      "name": "Mod3",
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 20,
+      "uuid": "0a55c44c-b342-48c9-9780-e25c41c1f677",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "in-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "out-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 30000,
+      "bcet_us": 0,
+      "typical_us": 10000,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "C"
+    },
+    {
+      "id": "id-5",
+      "name": "MERGE",
+      "inputs": 2,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 3,
+      "uuid": "f13a9e29-68cf-4139-a3d6-5e7a92f07002",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "in-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        },
+        {
+          "port_name": "in-1",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "out-0",
+          "data_type": "",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 3000,
+      "bcet_us": 0,
+      "typical_us": 1500,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    }
+  ],
+  "instances": [
+    {
+      "id": "id-6",
+      "moduleId": "id-2",
+      "moduleName": "Mod1",
+      "name": "Mod1/instance-01",
+      "x": 54,
+      "y": 105.19999694824219,
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 10,
+      "isBuffer": false,
+      "instance_id": 0,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "in-0",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "out-0",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-7",
+      "moduleId": "id-3",
+      "moduleName": "Mod2",
+      "name": "Mod2/instance-01",
+      "x": 47.31578947368421,
+      "y": 265.2526285271896,
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 5,
+      "isBuffer": false,
+      "instance_id": 0,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "in-0",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "out-0",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-8",
+      "moduleId": "id-4",
+      "moduleName": "Mod3",
+      "name": "Mod3/instance-01",
+      "x": 255,
+      "y": 106.19999694824219,
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 20,
+      "isBuffer": false,
+      "instance_id": 0,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "in-0",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "out-0",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-9",
+      "moduleId": "id-5",
+      "moduleName": "MERGE",
+      "name": "MERGE/instance-01",
+      "x": 498.5131578947368,
+      "y": 248.77894431666326,
+      "inputs": 2,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 3,
+      "isBuffer": false,
+      "instance_id": 0,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "in-0",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        },
+        {
+          "port_name": "in-1",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "out-0",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-10",
+      "moduleId": "id-4",
+      "moduleName": "Mod3",
+      "name": "Mod3/instance-02",
+      "x": 730.6842105263158,
+      "y": 250.25262852718953,
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 20,
+      "isBuffer": false,
+      "instance_id": 0,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "in-0",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "out-0",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-11",
+      "moduleId": "id-4",
+      "moduleName": "Mod3",
+      "name": "Mod3/instance-03",
+      "x": 274,
+      "y": 265.1999969482422,
+      "inputs": 1,
+      "outputs": 1,
+      "period": 100,
+      "execTime": 20,
+      "isBuffer": false,
+      "instance_id": 0,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "in-0",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "out-0",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    }
+  ],
+  "connections": [
+    {
+      "id": "id-12",
+      "fromInstanceId": "id-6",
+      "fromPort": 0,
+      "toInstanceId": "id-8",
+      "toPort": 0
+    },
+    {
+      "id": "id-13",
+      "fromInstanceId": "id-7",
+      "fromPort": 0,
+      "toInstanceId": "id-11",
+      "toPort": 0
+    },
+    {
+      "id": "id-14",
+      "fromInstanceId": "id-11",
+      "fromPort": 0,
+      "toInstanceId": "id-9",
+      "toPort": 1
+    },
+    {
+      "id": "id-15",
+      "fromInstanceId": "id-8",
+      "fromPort": 0,
+      "toInstanceId": "id-9",
+      "toPort": 0
+    },
+    {
+      "id": "id-16",
+      "fromInstanceId": "id-9",
+      "fromPort": 0,
+      "toInstanceId": "id-10",
+      "toPort": 0
+    }
+  ],
+  "useCases": [
+    {
+      "id": "id-17",
+      "name": "UC-1",
+      "instanceIds": [
+        "id-6",
+        "id-8",
+        "id-9",
+        "id-10"
+      ],
+      "active": false
+    },
+    {
+      "id": "id-18",
+      "name": "UC-2",
+      "instanceIds": [
+        "id-11",
+        "id-7",
+        "id-10",
+        "id-9"
+      ],
+      "active": false
+    }
+  ],
+  "nextInstanceCounters": {
+    "id-1": 0,
+    "id-2": 1,
+    "id-3": 1,
+    "id-4": 3,
+    "id-5": 1
+  }
+}

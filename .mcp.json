@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "safety-topology-builder": {
+      "command": "node",
+      "args": ["server.js"],
+      "cwd": "edf-builder/mcp-server"
+    }
+  }
+}

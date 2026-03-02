@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Topology Viewer — EDF Playback</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Safety Topology Viewer — EDF Playback</h1>
+        <div id="header-tabs">
+            <button class="tab-btn active" data-tab="split">Gantt + Topology</button>
+            <button class="tab-btn" data-tab="topo-full">Topology</button>
+            <button class="tab-btn" data-tab="metrics">Metrics</button>
+        </div>
+        <div id="header-info"></div>
+    </header>
+
+    <!-- Tab 1: Split view (Gantt + Topology) -->
+    <main id="tab-split" class="tab-content active">
+        <section id="topology-panel">
+            <div id="topo-viewport">
+                <svg id="topo-svg"></svg>
+                <div id="topo-canvas"></div>
+            </div>
+        </section>
+        <div id="split-divider"></div>
+        <section id="gantt-panel">
+            <div id="gantt-container">
+                <canvas id="gantt-canvas"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <!-- Tab 2: Full topology view -->
+    <main id="tab-topo-full" class="tab-content">
+        <section id="topo-full-panel">
+            <div id="topo-full-viewport">
+                <svg id="topo-full-svg"></svg>
+                <div id="topo-full-canvas"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Tab 3: Metrics view -->
+    <main id="tab-metrics" class="tab-content">
+        <section id="metrics-panel">
+            <div id="metrics-scroll">
+                <div id="metrics-summary" class="metrics-section">
+                    <h2>Summary</h2>
+                    <div id="metrics-summary-content"></div>
+                </div>
+                <div id="metrics-process" class="metrics-section">
+                    <h2>Process Response Times</h2>
+                    <table id="metrics-process-table">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>Period</th>
+                                <th>WCET</th>
+                                <th>Jobs</th>
+                                <th>Done</th>
+                                <th>Best RT</th>
+                                <th>Worst RT</th>
+                                <th>Avg RT</th>
+                                <th>Jitter</th>
+                                <th>Best Slack</th>
+                                <th>Worst Slack</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="metrics-chains" class="metrics-section">
+                    <h2>End-to-End Chain Latency</h2>
+                    <table id="metrics-chain-table">
+                        <thead>
+                            <tr>
+                                <th>Chain</th>
+                                <th>Best E2E</th>
+                                <th>Worst E2E</th>
+                                <th>Avg E2E</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="metrics-misses" class="metrics-section">
+                    <h2>Deadline Misses</h2>
+                    <div id="metrics-misses-content"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Playback Controls -->
+    <footer id="playback-bar">
+        <div id="controls-left">
+            <button id="btn-play" class="ctrl-btn" title="Play / Pause">&#9654;</button>
+            <button id="btn-stop" class="ctrl-btn" title="Stop">&#9632;</button>
+            <button id="btn-loop" class="ctrl-btn active" title="Loop">&#8635;</button>
+        </div>
+        <div id="controls-speed">
+            <button class="speed-btn" data-speed="0.1">0.1x</button>
+            <button class="speed-btn" data-speed="0.5">0.5x</button>
+            <button class="speed-btn active" data-speed="1">1x</button>
+            <button class="speed-btn" data-speed="2">2x</button>
+        </div>
+        <div id="controls-scrub">
+            <input type="range" id="scrub" min="0" max="1000" value="0" step="1">
+        </div>
+        <div id="controls-time">
+            <span id="time-display">0 / 0 ms</span>
+        </div>
+        <div id="controls-durations">
+            <label>Total:
+                <input type="number" id="total-duration" min="1" step="1" value="120"> ms
+            </label>
+            <label>Cycle:
+                <input type="number" id="cycle-duration" min="1" step="1" value="5"> s
+            </label>
+        </div>
+        <div id="controls-usecases"></div>
+    </footer>
+
+    <div id="tooltip" class="hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

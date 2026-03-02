@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Topology Builder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Safety Topology Builder</h1>
+    </header>
+    <div id="app">
+        <!-- Left Panel: Module Library -->
+        <aside id="library-panel">
+            <h2>Modules</h2>
+            <div id="create-module-bar">
+                <button id="btn-open-create-modal">CREATE</button>
+            </div>
+            <div id="module-list"></div>
+        </aside>
+
+        <!-- Modal: Create/Edit Module -->
+        <div id="modal-overlay" class="hidden">
+            <div id="modal-create-module">
+                <h3 id="modal-title">Create Module</h3>
+
+                <!-- Identity -->
+                <div class="modal-section-label">Identity</div>
+                <div class="modal-row">
+                    <div class="modal-field" style="flex:2">
+                        <label for="modal-mod-name">Name</label>
+                        <input type="text" id="modal-mod-name" placeholder="KalmanFilter">
+                    </div>
+                    <div class="modal-field" style="flex:1">
+                        <label for="modal-mod-version">Version</label>
+                        <input type="number" id="modal-mod-version" min="1" value="1">
+                    </div>
+                </div>
+
+                <!-- Input Ports -->
+                <div class="modal-section-label">Input Ports <button type="button" class="btn-add-port" id="btn-add-input-port">+ Add</button></div>
+                <div id="modal-input-ports" class="modal-ports-list"></div>
+
+                <!-- Output Ports -->
+                <div class="modal-section-label">Output Ports <button type="button" class="btn-add-port" id="btn-add-output-port">+ Add</button></div>
+                <div id="modal-output-ports" class="modal-ports-list"></div>
+
+                <!-- Timing -->
+                <div class="modal-section-label">Timing (intrinsic)</div>
+                <div class="modal-row">
+                    <div class="modal-field">
+                        <label for="modal-mod-wcet">WCET (µs)</label>
+                        <input type="number" id="modal-mod-wcet" min="0" value="500">
+                    </div>
+                    <div class="modal-field">
+                        <label for="modal-mod-bcet">BCET (µs)</label>
+                        <input type="number" id="modal-mod-bcet" min="0" value="100">
+                    </div>
+                    <div class="modal-field">
+                        <label for="modal-mod-typical">Typical (µs)</label>
+                        <input type="number" id="modal-mod-typical" min="0" value="300">
+                    </div>
+                </div>
+
+                <!-- Resources -->
+                <div class="modal-section-label">Resources</div>
+                <div class="modal-row">
+                    <div class="modal-field">
+                        <label for="modal-mod-stack">Stack (bytes)</label>
+                        <input type="number" id="modal-mod-stack" min="0" value="4096">
+                    </div>
+                    <div class="modal-field">
+                        <label for="modal-mod-mem">Static Mem (bytes)</label>
+                        <input type="number" id="modal-mod-mem" min="0" value="1024">
+                    </div>
+                </div>
+                <div class="modal-row">
+                    <div class="modal-field edf-checkbox-field">
+                        <label for="modal-mod-fpu">Requires FPU</label>
+                        <input type="checkbox" id="modal-mod-fpu">
+                    </div>
+                    <div class="modal-field edf-checkbox-field">
+                        <label for="modal-mod-gpu">Requires GPU</label>
+                        <input type="checkbox" id="modal-mod-gpu">
+                    </div>
+                </div>
+
+                <!-- Safety -->
+                <div class="modal-section-label">Safety</div>
+                <div class="modal-field">
+                    <label for="modal-mod-asil">ASIL Level</label>
+                    <select id="modal-mod-asil">
+                        <option value="QM">QM</option>
+                        <option value="A">ASIL A</option>
+                        <option value="B">ASIL B</option>
+                        <option value="C">ASIL C</option>
+                        <option value="D">ASIL D</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-modal-cancel" class="btn-secondary">Cancel</button>
+                    <button id="btn-modal-confirm">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas -->
+        <main id="canvas-container">
+            <div id="toolbar">
+                <button id="btn-create-usecase" title="Group selected instances into a Use Case">Create Use Case</button>
+                <button id="btn-delete" title="Delete selection">Delete</button>
+                <button id="btn-zoom-in" title="Zoom +">+</button>
+                <button id="btn-zoom-out" title="Zoom -">-</button>
+                <button id="btn-zoom-reset" title="Reset zoom">1:1</button>
+                <button id="btn-save-topology" title="Save topology as JSON">SAVE Topology</button>
+                <button id="btn-import" title="Load a topology">Load Topology</button>
+                <button id="btn-generate-edf" title="Generate EDF config and launch simulator">LAUNCH EDF Scheduling</button>
+            </div>
+            <div id="canvas-viewport">
+                <svg id="connections-svg"></svg>
+                <div id="canvas"></div>
+            </div>
+        </main>
+
+        <!-- Right Panel: Properties -->
+        <aside id="properties-panel">
+            <h2>Properties</h2>
+            <div id="properties-content">
+                <p class="placeholder">Select an element to view its properties.</p>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal: EDF Scheduling Parameters -->
+    <div id="edf-modal-overlay" class="hidden">
+        <div id="modal-edf">
+            <h3>LAUNCH EDF Scheduling</h3>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label for="edf-tick-period">Tick Period (ms)</label>
+                    <input type="number" id="edf-tick-period" min="1" value="1">
+                </div>
+                <div class="modal-field">
+                    <label for="edf-sim-duration">Simulation Duration (ms)</label>
+                    <input type="number" id="edf-sim-duration" min="1" value="1000">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label for="edf-num-cores">Number of Cores</label>
+                    <input type="number" id="edf-num-cores" min="1" max="16" value="1">
+                </div>
+                <div class="modal-field edf-checkbox-field">
+                    <label for="edf-fixed-part">Fixed Partitioning</label>
+                    <input type="checkbox" id="edf-fixed-part" checked>
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field edf-checkbox-field">
+                    <label for="edf-chain-constraints">Chain Constraints (dependencies)</label>
+                    <input type="checkbox" id="edf-chain-constraints" checked>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label for="edf-save-path">Save Path</label>
+                <input type="text" id="edf-save-path" value="edf-config.json" style="width:100%;font-size:13px;">
+            </div>
+            <div class="modal-field">
+                <label>Instances → Processes</label>
+                <div id="edf-pipeline-list" class="edf-pipeline-list"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-edf-cancel" class="btn-secondary">Cancel</button>
+                <button id="btn-edf-generate">Launch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Load topology -->
+    <div id="load-modal-overlay" class="hidden">
+        <div id="modal-load">
+            <h3>Load Topology</h3>
+            <div id="load-file-list" class="load-file-list">
+                <div class="load-file-empty">Loading...</div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-load-local" class="btn-secondary">Local file...</button>
+                <button id="btn-load-cancel" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context menu -->
+    <div id="context-menu" class="hidden">
+        <ul></ul>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="file-import" accept=".json" style="display:none">
+
+    <script src="app.js"></script>
+    <script src="ws-client.js"></script>
+</body>
+</html>

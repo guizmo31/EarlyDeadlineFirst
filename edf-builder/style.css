@@ -1,0 +1,770 @@
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg-dark: #1a1a2e;
+    --bg-panel: #16213e;
+    --bg-card: #0f3460;
+    --accent: #e94560;
+    --accent-hover: #ff6b81;
+    --text: #eee;
+    --text-muted: #8899aa;
+    --border: #2a3a5e;
+    --port-input: #4fc3f7;
+    --port-output: #ff8a65;
+    --buffer-color: #66bb6a;
+    --pipeline-bg: rgba(233, 69, 96, 0.08);
+    --pipeline-border: rgba(233, 69, 96, 0.5);
+    --link-color: #4fc3f7;
+    --selected-glow: 0 0 12px rgba(233, 69, 96, 0.7);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: var(--bg-panel);
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--accent);
+}
+
+/* === Layout === */
+#app {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* === Left Panel === */
+#library-panel {
+    width: 240px;
+    min-width: 240px;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+#library-panel h2 {
+    font-size: 14px;
+    padding: 12px 16px 8px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#create-module-bar {
+    padding: 8px 12px 10px;
+    border-bottom: 1px solid var(--border);
+}
+#btn-open-create-modal {
+    width: 100%;
+    padding: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+}
+#btn-open-create-modal:hover { background: var(--accent-hover); }
+
+/* === Modal === */
+#modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#modal-overlay.hidden { display: none; }
+
+/* Load topology modal */
+#load-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#load-modal-overlay.hidden { display: none; }
+
+#modal-load {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    min-width: 420px;
+    max-width: 560px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#modal-create-module {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    min-width: 520px;
+    max-width: 620px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#modal-create-module h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: var(--accent);
+}
+.modal-field {
+    margin-bottom: 14px;
+}
+.modal-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+.modal-field input {
+    width: 100%;
+    padding: 7px 10px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 13px;
+}
+.modal-field input:focus,
+.modal-field select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.modal-field select {
+    width: 100%;
+    padding: 7px 10px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 13px;
+}
+.modal-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 14px 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-add-port {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.btn-add-port:hover { color: var(--text); border-color: var(--accent); }
+.modal-ports-list {
+    max-height: 140px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px;
+    background: var(--bg-dark);
+    margin-bottom: 8px;
+}
+.modal-port-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.modal-port-row input {
+    padding: 4px 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-size: 12px;
+}
+.modal-port-row input:focus { border-color: var(--accent); outline: none; }
+.modal-port-row .port-field-name { flex: 2; }
+.modal-port-row .port-field-type { flex: 2; }
+.modal-port-row .port-field-size { flex: 1; }
+.modal-port-row .btn-remove-port {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+}
+.modal-port-row .btn-remove-port:hover { color: var(--accent); }
+.asil-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.asil-qm { background: #555; color: #ccc; }
+.asil-a { background: #2e7d32; color: #fff; }
+.asil-b { background: #f9a825; color: #000; }
+.asil-c { background: #e65100; color: #fff; }
+.asil-d { background: #b71c1c; color: #fff; }
+.modal-row {
+    display: flex;
+    gap: 12px;
+}
+.modal-row .modal-field {
+    flex: 1;
+}
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+.modal-actions button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#btn-modal-confirm {
+    background: var(--accent);
+    color: #fff;
+}
+#btn-modal-confirm:hover { background: var(--accent-hover); }
+#btn-modal-cancel,
+.btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid var(--border) !important;
+}
+.btn-secondary:hover { background: var(--border); color: var(--text); }
+
+/* Save Topology button highlight */
+#btn-save-topology {
+    background: #1b8a3e !important;
+    border-color: #22a84a !important;
+    font-weight: 600;
+}
+#btn-save-topology:hover {
+    background: #22a84a !important;
+}
+
+/* Load Topology button highlight */
+#btn-import {
+    background: #b71c1c !important;
+    border-color: #e53935 !important;
+    font-weight: 600;
+}
+#btn-import:hover {
+    background: #e53935 !important;
+}
+
+/* Generate EDF button highlight */
+#btn-generate-edf {
+    background: #1565c0 !important;
+    border-color: #1976d2 !important;
+    font-weight: 600;
+}
+#btn-generate-edf:hover {
+    background: #1976d2 !important;
+}
+
+/* Load modal file list */
+.load-file-list {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0;
+}
+.load-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+.load-file-item:hover {
+    background: #1a2545;
+}
+.load-file-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    flex: 1;
+}
+.load-file-item-name:hover {
+    color: var(--accent);
+}
+.load-file-item-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.load-file-item-size {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.load-file-delete {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 1;
+}
+.load-file-delete:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+.load-file-empty {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 16px;
+    text-align: center;
+}
+
+#module-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+}
+
+.module-template {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    cursor: grab;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+.module-template:hover {
+    border-color: var(--accent);
+    box-shadow: var(--selected-glow);
+}
+.module-template .mod-name {
+    font-size: 13px;
+    font-weight: 600;
+}
+.module-template .mod-info {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.module-template .btn-delete-module {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+.module-template .btn-delete-module:hover { color: var(--accent); }
+
+/* === Main Canvas === */
+#canvas-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+#toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+#toolbar button {
+    padding: 5px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+#toolbar button:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+#canvas-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+#connections-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+#connections-svg path {
+    pointer-events: stroke;
+    cursor: pointer;
+}
+#connections-svg path:hover {
+    stroke: var(--accent) !important;
+    stroke-width: 3 !important;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10000px;
+    height: 10000px;
+    transform-origin: 0 0;
+}
+
+/* === Instance Node === */
+.instance-node {
+    position: absolute;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    min-width: 160px;
+    cursor: move;
+    z-index: 10;
+    user-select: none;
+    transition: box-shadow 0.15s;
+}
+.instance-node.selected {
+    border-color: var(--accent);
+    box-shadow: var(--selected-glow);
+}
+.instance-node .node-header {
+    background: var(--bg-panel);
+    padding: 6px 10px;
+    border-radius: 6px 6px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.instance-node .node-header .node-type {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 400;
+}
+.instance-node .node-body {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    min-height: 36px;
+}
+.instance-node .ports-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.instance-node .port {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: crosshair;
+    padding: 2px 8px;
+}
+.instance-node .port .port-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+.instance-node .port:hover .port-dot {
+    transform: scale(1.4);
+}
+.instance-node .port.input .port-dot { border-color: var(--port-input); background: transparent; }
+.instance-node .port.input:hover .port-dot { background: var(--port-input); }
+.instance-node .port.output .port-dot { border-color: var(--port-output); background: transparent; }
+.instance-node .port.output:hover .port-dot { background: var(--port-output); }
+
+/* === Buffer Node === */
+.instance-node.buffer-node {
+    min-width: 100px;
+    border-color: var(--buffer-color);
+}
+.instance-node.buffer-node .node-header {
+    background: rgba(102, 187, 106, 0.15);
+    color: var(--buffer-color);
+}
+
+/* === Pipeline Group === */
+.usecase-group {
+    position: absolute;
+    border: 2px dashed var(--pipeline-border);
+    background: var(--pipeline-bg);
+    border-radius: 12px;
+    z-index: 2;
+    cursor: move;
+    user-select: none;
+}
+.usecase-group.selected {
+    border-color: var(--accent);
+    box-shadow: var(--selected-glow);
+}
+.usecase-group .usecase-header {
+    position: absolute;
+    top: -28px;
+    left: 8px;
+    background: var(--accent);
+    color: #fff;
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.usecase-group .usecase-order {
+    position: absolute;
+    bottom: -22px;
+    left: 8px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* === Right Panel === */
+#properties-panel {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+}
+#properties-panel h2 {
+    font-size: 14px;
+    padding: 12px 16px 8px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+#properties-content {
+    padding: 0 16px 16px;
+}
+#properties-content .placeholder {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-style: italic;
+}
+#properties-content .prop-group {
+    margin-bottom: 12px;
+}
+#properties-content .prop-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+}
+#properties-content .prop-group input,
+#properties-content .prop-group select {
+    width: 100%;
+    padding: 5px 8px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 13px;
+}
+#properties-content .prop-group .prop-value {
+    font-size: 13px;
+    color: var(--text);
+}
+#properties-content .connections-list {
+    list-style: none;
+    font-size: 12px;
+}
+#properties-content .connections-list li {
+    padding: 3px 0;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#properties-content .connections-list li button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* === Context Menu === */
+#context-menu {
+    position: fixed;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    min-width: 160px;
+}
+#context-menu.hidden { display: none; }
+#context-menu ul { list-style: none; }
+#context-menu li {
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+#context-menu li:hover {
+    background: var(--accent);
+}
+#context-menu li.separator {
+    height: 1px;
+    background: var(--border);
+    padding: 0;
+    margin: 4px 0;
+    cursor: default;
+}
+
+/* Temp link being drawn */
+.temp-link {
+    pointer-events: none;
+}
+
+/* Selection rectangle */
+.selection-rect {
+    position: absolute;
+    border: 1px solid var(--accent);
+    background: rgba(233, 69, 96, 0.1);
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* === EDF Modal === */
+#modal-edf {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    min-width: 500px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#modal-edf h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: #1976d2;
+}
+#edf-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#edf-modal-overlay.hidden { display: none; }
+
+.edf-checkbox-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.edf-checkbox-field input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 4px;
+    accent-color: #1976d2;
+}
+
+.edf-pipeline-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px;
+    background: var(--bg-dark);
+}
+.edf-pipeline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+}
+.edf-pipeline-item:last-child { border-bottom: none; }
+.edf-pipeline-item .edf-pl-name { font-weight: 600; }
+.edf-pipeline-item .edf-pl-info { color: var(--text-muted); }
+
+#btn-edf-generate {
+    background: #1565c0;
+    color: #fff;
+}
+#btn-edf-generate:hover { background: #1976d2; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }

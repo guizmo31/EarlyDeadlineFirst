@@ -1,0 +1,664 @@
+{
+  "version": "2.0",
+  "name": "LKA-Topology",
+  "savedAt": "2026-03-02T21:47:26.377Z",
+  "modules": [
+    {
+      "id": "id-1",
+      "uuid": "9a7fd5fd-1050-4757-bd41-f6a05a88dced",
+      "name": "CameraDriver",
+      "version": 1,
+      "input_ports": [],
+      "output_ports": [
+        {
+          "port_name": "raw_frame",
+          "data_type": "ImageFrame",
+          "sample_size_bytes": 921600
+        }
+      ],
+      "wcet_us": 2000,
+      "bcet_us": 500,
+      "typical_us": 1000,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-2",
+      "uuid": "4edf180f-70c3-4aba-880e-faeab8dbfcec",
+      "name": "LaneDetection",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "frame",
+          "data_type": "ImageFrame",
+          "sample_size_bytes": 921600
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "lane_markings",
+          "data_type": "LaneMarkings",
+          "sample_size_bytes": 2048
+        }
+      ],
+      "wcet_us": 8000,
+      "bcet_us": 3000,
+      "typical_us": 5000,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": true,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-3",
+      "uuid": "90ffa49c-aebf-48df-865d-82552e7d8e90",
+      "name": "IMU_Driver",
+      "version": 1,
+      "input_ports": [],
+      "output_ports": [
+        {
+          "port_name": "imu_data",
+          "data_type": "IMU_Sample",
+          "sample_size_bytes": 64
+        }
+      ],
+      "wcet_us": 200,
+      "bcet_us": 50,
+      "typical_us": 100,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-4",
+      "uuid": "cb4fdc02-4181-470f-9da0-d1ad94fbaec3",
+      "name": "VehicleStateEstimator",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "imu_in",
+          "data_type": "IMU_Sample",
+          "sample_size_bytes": 64
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "vehicle_state",
+          "data_type": "VehicleState",
+          "sample_size_bytes": 256
+        }
+      ],
+      "wcet_us": 1000,
+      "bcet_us": 300,
+      "typical_us": 600,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-5",
+      "uuid": "6f083d47-db03-40b0-9041-bb62b3b764bf",
+      "name": "LaneFusion",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "lane_markings",
+          "data_type": "LaneMarkings",
+          "sample_size_bytes": 2048
+        },
+        {
+          "port_name": "vehicle_state",
+          "data_type": "VehicleState",
+          "sample_size_bytes": 256
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "fused_lanes",
+          "data_type": "FusedLaneModel",
+          "sample_size_bytes": 4096
+        }
+      ],
+      "wcet_us": 3000,
+      "bcet_us": 1000,
+      "typical_us": 2000,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-6",
+      "uuid": "267ea0ae-792e-4971-af3e-a42bcca45918",
+      "name": "LKA_Planner",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "fused_lanes",
+          "data_type": "FusedLaneModel",
+          "sample_size_bytes": 4096
+        },
+        {
+          "port_name": "vehicle_state",
+          "data_type": "VehicleState",
+          "sample_size_bytes": 256
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "steering_request",
+          "data_type": "SteeringCommand",
+          "sample_size_bytes": 128
+        },
+        {
+          "port_name": "hmi_status",
+          "data_type": "LKA_Status",
+          "sample_size_bytes": 64
+        }
+      ],
+      "wcet_us": 2000,
+      "bcet_us": 500,
+      "typical_us": 1200,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-7",
+      "uuid": "4245c920-f5f1-4ed2-a950-ff96a983ed0a",
+      "name": "LateralController",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "steering_request",
+          "data_type": "SteeringCommand",
+          "sample_size_bytes": 128
+        },
+        {
+          "port_name": "vehicle_state",
+          "data_type": "VehicleState",
+          "sample_size_bytes": 256
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "torque_command",
+          "data_type": "TorqueCommand",
+          "sample_size_bytes": 32
+        }
+      ],
+      "wcet_us": 500,
+      "bcet_us": 100,
+      "typical_us": 300,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-8",
+      "uuid": "449e1e6b-100f-4591-b603-c365de54bea9",
+      "name": "EPS_Driver",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "torque_cmd",
+          "data_type": "TorqueCommand",
+          "sample_size_bytes": 32
+        }
+      ],
+      "output_ports": [],
+      "wcet_us": 300,
+      "bcet_us": 100,
+      "typical_us": 200,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B"
+    },
+    {
+      "id": "id-9",
+      "uuid": "20a5e3d3-5c42-449d-9fac-d5accc4ada4b",
+      "name": "HMI_Manager",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "lka_status",
+          "data_type": "LKA_Status",
+          "sample_size_bytes": 64
+        }
+      ],
+      "output_ports": [],
+      "wcet_us": 1000,
+      "bcet_us": 200,
+      "typical_us": 500,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    }
+  ],
+  "instances": [
+    {
+      "id": "id-10",
+      "moduleId": "id-1",
+      "moduleName": "CameraDriver",
+      "instance_id": 1,
+      "name": "Camera_Front",
+      "x": 100,
+      "y": 100,
+      "activation": "PERIODIC",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [],
+      "output_configs": [
+        {
+          "port_name": "raw_frame",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-11",
+      "moduleId": "id-2",
+      "moduleName": "LaneDetection",
+      "instance_id": 1,
+      "name": "LaneDetect_Main",
+      "x": 400,
+      "y": 100,
+      "activation": "PERIODIC",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "frame",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "lane_markings",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-12",
+      "moduleId": "id-3",
+      "moduleName": "IMU_Driver",
+      "instance_id": 1,
+      "name": "IMU_Main",
+      "x": 100,
+      "y": 300,
+      "activation": "PERIODIC",
+      "period_us": 5000,
+      "min_interarrival_us": 0,
+      "input_configs": [],
+      "output_configs": [
+        {
+          "port_name": "imu_data",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-13",
+      "moduleId": "id-4",
+      "moduleName": "VehicleStateEstimator",
+      "instance_id": 1,
+      "name": "VehState_Est",
+      "x": 400,
+      "y": 300,
+      "activation": "PERIODIC",
+      "period_us": 5000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "imu_in",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "vehicle_state",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-14",
+      "moduleId": "id-5",
+      "moduleName": "LaneFusion",
+      "instance_id": 1,
+      "name": "LaneFusion_Main",
+      "x": 700,
+      "y": 200,
+      "activation": "PERIODIC",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "lane_markings",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        },
+        {
+          "port_name": "vehicle_state",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "fused_lanes",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-15",
+      "moduleId": "id-6",
+      "moduleName": "LKA_Planner",
+      "instance_id": 1,
+      "name": "LKA_Planner",
+      "x": 1000,
+      "y": 200,
+      "activation": "PERIODIC",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "fused_lanes",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        },
+        {
+          "port_name": "vehicle_state",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "steering_request",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        },
+        {
+          "port_name": "hmi_status",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-16",
+      "moduleId": "id-7",
+      "moduleName": "LateralController",
+      "instance_id": 1,
+      "name": "LatCtrl_Main",
+      "x": 1300,
+      "y": 200,
+      "activation": "PERIODIC",
+      "period_us": 10000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "steering_request",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        },
+        {
+          "port_name": "vehicle_state",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "torque_command",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-17",
+      "moduleId": "id-8",
+      "moduleName": "EPS_Driver",
+      "instance_id": 1,
+      "name": "EPS_Driver",
+      "x": 1600,
+      "y": 200,
+      "activation": "PERIODIC",
+      "period_us": 10000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "torque_cmd",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    },
+    {
+      "id": "id-18",
+      "moduleId": "id-9",
+      "moduleName": "HMI_Manager",
+      "instance_id": 1,
+      "name": "HMI_Display",
+      "x": 1300,
+      "y": 400,
+      "activation": "PERIODIC",
+      "period_us": 100000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "lka_status",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "INACTIVE"
+    }
+  ],
+  "connections": [
+    {
+      "id": "id-19",
+      "fromInstanceId": "id-10",
+      "fromPort": 0,
+      "toInstanceId": "id-11",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-20",
+      "fromInstanceId": "id-12",
+      "fromPort": 0,
+      "toInstanceId": "id-13",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-21",
+      "fromInstanceId": "id-11",
+      "fromPort": 0,
+      "toInstanceId": "id-14",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-22",
+      "fromInstanceId": "id-13",
+      "fromPort": 0,
+      "toInstanceId": "id-14",
+      "toPort": 1,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-23",
+      "fromInstanceId": "id-14",
+      "fromPort": 0,
+      "toInstanceId": "id-15",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-24",
+      "fromInstanceId": "id-13",
+      "fromPort": 0,
+      "toInstanceId": "id-15",
+      "toPort": 1,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-25",
+      "fromInstanceId": "id-15",
+      "fromPort": 0,
+      "toInstanceId": "id-16",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-26",
+      "fromInstanceId": "id-13",
+      "fromPort": 0,
+      "toInstanceId": "id-16",
+      "toPort": 1,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-27",
+      "fromInstanceId": "id-16",
+      "fromPort": 0,
+      "toInstanceId": "id-17",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "id-28",
+      "fromInstanceId": "id-15",
+      "fromPort": 1,
+      "toInstanceId": "id-18",
+      "toPort": 0,
+      "doubleBuffer": false
+    }
+  ],
+  "useCases": [
+    {
+      "id": "id-29",
+      "name": "LKA_Active",
+      "instanceIds": [
+        "id-10",
+        "id-11",
+        "id-12",
+        "id-13",
+        "id-14",
+        "id-15",
+        "id-16",
+        "id-17",
+        "id-18"
+      ],
+      "active": true
+    }
+  ],
+  "nextInstanceCounters": {
+    "id-1": 1,
+    "id-2": 1,
+    "id-3": 1,
+    "id-4": 1,
+    "id-5": 1,
+    "id-6": 1,
+    "id-7": 1,
+    "id-8": 1,
+    "id-9": 1
+  }
+}

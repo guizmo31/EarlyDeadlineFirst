@@ -1,197 +1,237 @@
-# EDF Scheduler Simulator
+# EDF — Early Deadline First Scheduling Platform
 
-Simulateur de l'algorithme d'ordonnancement **Early Deadline First (EDF)** avec support multi-core, écrit en Rust avec une interface web interactive.
+A complete platform for designing, simulating, and analyzing **real-time safety-critical systems** using the Early Deadline First (EDF) scheduling algorithm. Built with a Rust backend and vanilla JS frontends.
 
-## L'algorithme EDF
+## Overview
 
-### Principe
+The platform consists of three integrated web applications served from a single HTTP server:
 
-L'algorithme **Early Deadline First** est un algorithme d'ordonnancement préemptif à priorité dynamique. À chaque instant, le processeur exécute la tâche dont l'échéance (deadline) est la plus proche. C'est un algorithme optimal pour les systèmes mono-processeur : si un ensemble de tâches périodiques est ordonnançable, EDF trouvera un ordonnancement valide.
+| App | Route | Description |
+|-----|-------|-------------|
+| **Topology Builder** | `/builder/` | Visual editor for designing module topologies with ports, connections, and use cases |
+| **EDF Simulator** | `/simulator/` | Configure and run EDF scheduling simulations with Gantt chart visualization |
+| **Topology Viewer** | `/viewer/` | Animated playback of scheduling results overlaid on the topology graph |
 
-### Condition de faisabilité (mono-core)
+All three apps share a common data directory (`Topologies/`) and communicate through the MCP server for AI-assisted topology generation.
 
-Un ensemble de tâches périodiques est ordonnançable par EDF sur un seul processeur si et seulement si l'utilisation totale du CPU est inférieure ou égale à 100% :
+## Quick Start
 
+```bash
+# Prerequisites: Rust toolchain (https://rustup.rs)
+
+# Clone and build
+git clone https://github.com/guizmo31/EarlyDeadlineFirst.git
+cd EarlyDeadlineFirst
+cargo build --release
+
+# Start the server
+cargo run --release -p edf-server
+
+# Open http://localhost:8080 (redirects to /simulator/)
 ```
-U = Σ (Ci / Ti) ≤ 1
-```
 
-Où `Ci` est le temps CPU requis et `Ti` la période de la tâche `i`.
-
-### Extension multi-core
-
-Sur un système à `M` cores, le simulateur implémente un ordonnancement **global EDF** :
-
-1. **Tri EDF** : À chaque tick, toutes les tâches prêtes sont triées par deadline croissante. En cas d'égalité, la priorité statique (0 = plus prioritaire) puis l'index du process servent de départage.
-
-2. **Affectation en deux passes** :
-   - **Passe 1 — Tâches pinned** : Les tâches avec core pinning sont assignées en priorité à leur core désigné (par ordre EDF).
-   - **Passe 2 — Tâches libres** : Les tâches non-pinned remplissent les cores restants dans l'ordre (Core 0, Core 1, ...), réalisant un load balancing naturel.
-
-3. **Préemption** : À chaque tick d'ordonnancement, les tâches peuvent être préemptées si une tâche avec une deadline plus proche devient disponible.
-
-4. **Détection des deadline misses** : Si une tâche n'a pas terminé son exécution avant sa deadline, un événement "deadline miss" est enregistré.
-
-### Core Pinning
-
-Le core pinning (affinité processeur) permet de forcer l'exécution d'une tâche sur un core spécifique :
-- **Tâche pinned** : s'exécute exclusivement sur le core désigné.
-- **Tâche non-pinned** : est assignée au premier core disponible (load balancing).
-
-Cela permet de simuler des scénarios réels comme l'isolation de tâches critiques sur un core dédié.
-
-## Structure du projet
+## Project Structure
 
 ```
 EarlyDeadlineFirst/
-├── Cargo.toml              # Workspace Rust
-├── .cargo/config.toml      # Configuration toolchain (GNU)
-├── edf-core/               # Bibliothèque Rust — moteur EDF
-│   └── src/lib.rs          # Algorithme de simulation
-├── edf-server/             # Binaire Rust — serveur HTTP (actix-web)
-│   └── src/main.rs         # API REST + serveur de fichiers statiques
-└── edf-web/                # Frontend — HTML/CSS/JS (vanilla)
-    ├── index.html           # Page principale
-    ├── style.css            # Styles (thème sombre)
-    └── app.js               # Logique frontend + rendu Gantt (Canvas)
+├── edf-core/           # Rust library — EDF scheduling engine
+│   └── src/lib.rs      # Algorithm implementation + metrics
+├── edf-server/         # Rust binary — HTTP server (actix-web)
+│   └── src/main.rs     # REST API + static file server
+├── edf-web/            # Simulator frontend (HTML/CSS/JS)
+├── edf-builder/        # Topology Builder frontend
+│   ├── app.js          # Builder logic (modules, instances, connections, use cases)
+│   ├── ws-client.js    # WebSocket bridge for MCP live sync
+│   └── mcp-server/     # MCP server for AI agent integration
+│       ├── server.js   # MCP tools + HTTP file API + WebSocket bridge
+│       └── topology-state.js  # Headless topology engine
+├── edf-viewer/         # Topology Viewer frontend
+│   └── app.js          # Animated Gantt + topology playback with metrics
+├── Topologies/         # Shared topology & config JSON files
+└── Cargo.toml          # Rust workspace
 ```
 
-## Prérequis
+---
 
-- **Rust** (stable) — installable via [rustup](https://rustup.rs/)
-- **MinGW** (sur Windows avec toolchain GNU) — `scoop install mingw` ou équivalent
+## EDF Core — Scheduling Algorithm
 
-## Compilation
+### What is EDF?
+
+**Early Deadline First** is a dynamic-priority preemptive scheduling algorithm. At every scheduling point, the CPU executes the task with the nearest deadline. It is **optimal for uniprocessor systems**: if a task set is schedulable, EDF will find a valid schedule.
+
+### Feasibility Condition (single core)
+
+A set of periodic tasks is schedulable by EDF if and only if total CPU utilization does not exceed 100%:
+
+```
+U = Σ (Cᵢ / Tᵢ) ≤ 1.0
+```
+
+Where `Cᵢ` is the worst-case execution time and `Tᵢ` is the period of task `i`.
+
+### Multi-Core Global EDF
+
+On a system with `M` cores, the engine implements **global EDF** with a two-pass assignment:
+
+1. **EDF Sort** — All ready jobs are sorted by `(deadline, priority, index)`. Lower deadline = higher urgency. Priority (0 = highest) breaks ties.
+
+2. **Pass 1 — Pinned tasks** — Jobs with core affinity (`pinned_core`) are assigned first to their designated core, in EDF order.
+
+3. **Pass 2 — Free tasks** — Remaining jobs fill available cores in order (Core 0, Core 1, ...), providing natural load balancing.
+
+4. **Preemption** — At every scheduling point, running jobs can be preempted if a higher-urgency job becomes ready.
+
+### Intra-Tick Rescheduling
+
+The scheduler does **not** simply advance tick-by-tick. Within each tick interval, it implements a **sub-tick loop**:
+
+```
+for each tick:
+    tick_end = current_time + tick_period
+    sub_time = current_time
+    while sub_time < tick_end:
+        sort ready jobs by EDF
+        assign jobs to cores
+        advance = min(remaining_in_tick, min(job.remaining for assigned jobs))
+        execute for 'advance' microseconds
+        detect completions → release dependent jobs, update FIFOs
+        sub_time += advance
+        // re-sort and re-assign on next iteration
+```
+
+This means the scheduler **re-evaluates on every job completion**, not just at tick boundaries. This is critical for data-driven chains where downstream tasks should start as soon as their inputs are available.
+
+### Dependency Chains & FIFO Connections
+
+Tasks can declare dependencies on other tasks:
+- **Standard (S&H — Sample & Hold)**: Consumer waits for producer to complete in the current period before starting.
+- **Double-buffered**: Consumer reads data from the **previous** period (1-period latency), allowing producer and consumer to execute in parallel.
+
+### Fixed Partitioning
+
+When `fixed_partitioning` is enabled, once a task starts on a core, it stays there for all subsequent executions (no migration). This models real-world AUTOSAR-style core allocation.
+
+### Configuration Complexity
+
+An EDF configuration requires careful tuning of many parameters:
+
+| Parameter | Scope | Description |
+|-----------|-------|-------------|
+| `tick_period_ms` | Global | Scheduling granularity. Lower = more precise but higher overhead |
+| `simulation_duration_ms` | Global | How long to simulate |
+| `num_cores` | Global | Number of CPU cores (1–16) |
+| `fixed_partitioning` | Global | Disable task migration between cores |
+| `period_ms` | Per-process | Activation period |
+| `cpu_time_ms` | Per-process | WCET — worst-case execution time per job |
+| `priority` | Per-process | Static priority for EDF tie-breaking (0 = highest) |
+| `pinned_core` | Per-process | Force execution on a specific core |
+| `dependencies` | Per-process | List of processes that must complete first |
+| `double_buffer_deps` | Per-process | Dependencies using double buffering |
+
+This is why the **Topology Builder** exists — it provides a visual way to design complex multi-rate systems and automatically generates the EDF configuration.
+
+### Metrics Output
+
+The simulator computes comprehensive metrics:
+
+- **Per-process**: Best/Worst/Avg response time, jitter, slack (positive = margin, negative = overrun)
+- **Per-chain**: End-to-end latency from root sensor to leaf actuator (best/worst/avg)
+- **Deadline misses**: Every instance where a job failed to complete before its deadline
+
+---
+
+## Topology Builder
+
+The Builder is a visual editor for designing safety-critical software architectures.
+
+### Concepts
+
+- **Module**: A reusable software component template with typed input/output ports, WCET/BCET, ASIL level, and resource requirements.
+- **Instance**: A placed copy of a module on the canvas, with its own activation pattern (PERIODIC, DATA_DRIVEN, SPORADIC) and timing parameters.
+- **Connection**: A data flow link from an output port of one instance to an input port of another. Can be standard (S&H) or double-buffered.
+- **Use Case**: A logical grouping of instances that form a functional chain (e.g., "Lane Keeping Assist").
+
+### Workflow
+
+1. **Create modules** in the left panel (define ports, timing, ASIL)
+2. **Drag modules** onto the canvas to create instances
+3. **Connect ports** by dragging from output to input
+4. **Group into Use Cases** for organizational clarity
+5. **Configure** activation patterns and periods in the properties panel
+6. **Launch EDF Scheduling** to generate config and open the simulator
+
+### MCP Server (AI Integration)
+
+The Builder includes an MCP (Model Context Protocol) server that enables AI agents like Claude to create and manipulate topologies programmatically. It operates in **dual mode**:
+
+- **Headless**: Full topology manipulation without a browser
+- **Live sync**: Changes are pushed to the browser in real-time when connected
+
+Start the MCP server: `node edf-builder/mcp-server/server.js`
+
+---
+
+## EDF Simulator
+
+Interactive simulation and visualization of EDF scheduling.
+
+### Features
+
+- Configure tick period, duration, number of cores
+- Add/remove processes with individual timing parameters
+- Core pinning and fixed partitioning options
+- Real-time Gantt chart rendering (per-core and per-process views)
+- Visual deadline miss indicators
+- CPU utilization statistics
+- Save/load configurations from server or local files
+
+### API
+
+```
+POST /api/simulate — Run EDF simulation (JSON body: SchedulerConfig)
+GET  /api/health   — Health check
+```
+
+---
+
+## Topology Viewer
+
+Animated playback of scheduling simulation results overlaid on the topology graph.
+
+### Features
+
+- **Split view**: Topology graph + Gantt chart side by side
+- **Full topology view**: Expanded topology with animated node execution
+- **Metrics tab**: Summary cards, per-process response time table, chain latency table, deadline miss list
+- **Playback controls**: Play/pause, speed (1x–64x), scrub timeline, loop mode
+- **Visual feedback**: Executing nodes glow with per-core colors, connections animate data flow, FIFO/double-buffer badges
+
+---
+
+## Building
+
+### Prerequisites
+
+- **Rust** (stable) — [rustup.rs](https://rustup.rs/)
+- **Node.js** (for MCP server) — [nodejs.org](https://nodejs.org/)
+- On Windows with GNU toolchain: MinGW (`scoop install mingw`)
+
+### Commands
 
 ```bash
-# Cloner le dépôt
-git clone <url-du-repo>
-cd EarlyDeadlineFirst
+# Build everything
+cargo build --release
 
-# Compiler en mode release
-cargo build --release -p edf-server
-
-# Lancer les tests unitaires
+# Run tests (18 tests including intra-tick rescheduling, metrics, chains)
 cargo test -p edf-core
-```
 
-### Sur Windows (Git Bash / MSYS2)
-
-Si vous utilisez la toolchain GNU, assurez-vous que MinGW est dans le PATH :
-
-```bash
-export PATH="$HOME/scoop/apps/mingw/current/bin:$HOME/.cargo/bin:$PATH"
-cargo build --release -p edf-server
-```
-
-## Lancer le simulateur
-
-```bash
+# Start the server
 cargo run --release -p edf-server
+
+# Install MCP server dependencies (optional, for AI integration)
+cd edf-builder/mcp-server && npm install
 ```
 
-Le serveur démarre sur **http://localhost:8080**. Ouvrez cette URL dans votre navigateur.
-
-## Utilisation du simulateur
-
-### Configuration
-
-1. **Tick Period (ms)** : Granularité de l'ordonnancement. 1 ms = précision maximale.
-2. **Simulation Duration (ms)** : Durée totale de la simulation.
-3. **CPU Cores** : Nombre de cœurs processeur (1 à 16).
-
-### Définition des processus
-
-Pour chaque processus, vous pouvez configurer :
-- **Nom** : Identifiant du processus.
-- **Period (ms)** : Période de la tâche (intervalle entre deux activations).
-- **CPU time (ms)** : Temps CPU requis par période.
-- **Priority** : Priorité statique (0 = plus haute). Sert de départage quand deux tâches ont la même deadline.
-- **Color** : Couleur dans le diagramme de Gantt.
-- **Core Pinning** : Si coché, le processus est forcé sur le core spécifié.
-
-### Diagramme de Gantt
-
-Après simulation, le diagramme de Gantt affiche deux sections :
-
-- **CORES** : Vue par cœur — chaque ligne montre l'activité d'un core (quel processus s'exécute à chaque instant).
-- **PROCESSES** : Vue par processus — chaque ligne montre quand un processus s'exécute (et sur quel core, indiqué par `C0`, `C1`, ...).
-
-Les marqueurs visuels incluent :
-- Blocs colorés par processus, blocs blancs pour IDLE.
-- Lignes pointillées verticales pour les périodes de chaque processus.
-- Triangles rouges pour les deadline misses.
-- Tooltip au survol avec les détails (start, duration, end, core).
-
-### Statistiques
-
-- **Theoretical Utilization** : Somme des ratios CPU/période (indicateur de faisabilité).
-- **Per-core utilization** : Pourcentage d'occupation de chaque core.
-- **Global CPU Used** : Utilisation globale sur l'ensemble des cores.
-- **Deadline Misses** : Nombre de deadlines manquées (avec détails au survol).
-
-## API REST
-
-Le serveur expose deux endpoints :
-
-### `GET /api/health`
-Vérification de l'état du serveur.
-
-### `POST /api/simulate`
-Lance une simulation EDF. Corps de la requête (JSON) :
-
-```json
-{
-  "tick_period_ms": 1,
-  "simulation_duration_ms": 120,
-  "num_cores": 2,
-  "processes": [
-    {
-      "name": "Process-A",
-      "period_ms": 10,
-      "cpu_time_ms": 2,
-      "priority": 0,
-      "pinned_core": null
-    },
-    {
-      "name": "Process-B",
-      "period_ms": 30,
-      "cpu_time_ms": 10,
-      "priority": 1,
-      "pinned_core": 1
-    }
-  ]
-}
-```
-
-Réponse :
-
-```json
-{
-  "schedule": [
-    { "time_ms": 0, "duration_ms": 2, "process_name": "Process-A", "core": 0 },
-    { "time_ms": 2, "duration_ms": 8, "process_name": "IDLE", "core": 0 }
-  ],
-  "total_duration_ms": 120,
-  "cpu_utilization": 0.533,
-  "num_cores": 2,
-  "deadline_misses": []
-}
-```
-
-## Exemple classique
-
-Configuration par défaut du simulateur :
-
-| Processus | Période | CPU Time | Utilisation |
-|-----------|---------|----------|-------------|
-| Process-A | 10 ms   | 2 ms     | 20%         |
-| Process-B | 30 ms   | 10 ms    | 33.3%       |
-| Process-C | 60 ms   | 20 ms    | 33.3%       |
-| **Total** |         |          | **86.7%**   |
-
-Avec U = 86.7% < 100%, cet ensemble est ordonnançable par EDF sur 1 core sans aucune deadline miss.
-
-## Licence
+## License
 
 MIT

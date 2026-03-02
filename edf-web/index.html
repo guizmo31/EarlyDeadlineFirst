@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,6 +38,11 @@
                 <span class="config-hint" title="Once a process starts on a core, it stays there (no migration)">?</span>
             </div>
 
+            <div id="usecases-section" class="hidden">
+                <h3>Use Cases</h3>
+                <div id="usecase-list"></div>
+            </div>
+
             <h3>Processes</h3>
             <div id="process-list"></div>
 
@@ -45,7 +50,13 @@
 
             <div class="actions">
                 <button id="simulate-btn" class="btn btn-primary">Simulate</button>
+                <div class="actions-row">
+                    <button id="save-btn" class="btn btn-secondary btn-half">Save Config</button>
+                    <button id="load-btn" class="btn btn-secondary btn-half">Load Config</button>
+                </div>
+                <button id="play-edf-btn" class="btn btn-primary" style="margin-top:4px;background:#533483;" disabled>Play EDF</button>
             </div>
+            <input type="file" id="load-file-input" accept=".json" class="hidden">
 
             <div id="stats" class="hidden">
                 <h3>Statistics</h3>
@@ -68,6 +79,22 @@
             <div id="legend"></div>
         </section>
     </main>
+
+    <!-- Modal: Load from server -->
+    <div id="load-modal-overlay" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;">
+        <div style="background:#16213e;border:1px solid #533483;border-radius:8px;padding:20px;min-width:320px;max-width:400px;">
+            <h3 style="color:#e94560;margin-bottom:12px;font-size:1rem;">Load Config</h3>
+            <select id="load-server-select" style="width:100%;padding:6px;font-size:13px;background:#0f3460;color:#e0e0e0;border:1px solid #533483;border-radius:4px;margin-bottom:8px;">
+                <option value="">Loading...</option>
+            </select>
+            <div id="load-server-info" style="font-size:11px;color:#a0a0c0;margin-bottom:12px;"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button id="btn-load-srv-cancel" class="btn btn-secondary" style="width:auto;">Cancel</button>
+                <button id="btn-load-srv-local" class="btn btn-secondary" style="width:auto;">Local file...</button>
+                <button id="btn-load-srv-ok" class="btn btn-primary" style="width:auto;margin-top:0;">Load</button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
