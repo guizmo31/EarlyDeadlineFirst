@@ -7,12 +7,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDF Scheduler Simulator</title>
+    <title>EDF Scheduler</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/shared/nav.css">
 </head>
 <body>
     <header>
-        <h1>Early Deadline First — Scheduler Simulator</h1>
+        <h1>Scheduler</h1>
+        <span id="topology-context" class="topology-badge"></span>
+        <nav id="tool-nav"></nav>
+        <script src="/shared/nav.js"></script>
     </header>
 
     <main>
@@ -53,14 +57,14 @@
             <button id="add-process-btn" class="btn btn-secondary">+ Add Process</button>
 
             <div class="actions">
-                <button id="simulate-btn" class="btn btn-primary">Simulate</button>
                 <div class="actions-row">
                     <button id="save-btn" class="btn btn-secondary btn-half">Save Config</button>
                     <button id="load-btn" class="btn btn-secondary btn-half">Load Config</button>
                 </div>
-                <button id="play-edf-btn" class="btn btn-primary" style="margin-top:4px;background:#533483;" disabled>Play EDF</button>
             </div>
             <input type="file" id="load-file-input" accept=".json" class="hidden">
+
+            <div id="schedulability-box" class="hidden"></div>
 
             <div id="stats" class="hidden">
                 <h3>Statistics</h3>
@@ -69,13 +73,18 @@
                 <div id="per-core-stats"></div>
                 <p>Global CPU Used: <span id="cpu-total"></span></p>
                 <p>Deadline Misses: <span id="deadline-misses"></span></p>
+                <div id="budget-overruns"></div>
+                <div id="degraded-events"></div>
             </div>
 
             <div id="error-box" class="hidden"></div>
         </section>
 
         <section id="chart-panel">
-            <h2>Schedule (Gantt Chart)</h2>
+            <div class="chart-header">
+                <h2>Schedule (Gantt Chart)</h2>
+                <button id="simulate-btn" class="btn btn-primary">Update Scheduling</button>
+            </div>
             <div id="chart-container">
                 <canvas id="gantt-canvas"></canvas>
             </div>

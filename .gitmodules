@@ -1,0 +1,3 @@
+[submodule "edf-modules"]
+	path = edf-modules
+	url = https://github.com/guizmo31/edf-modules.git

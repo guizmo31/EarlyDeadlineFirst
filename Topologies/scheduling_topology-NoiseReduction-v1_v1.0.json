@@ -1,0 +1,41 @@
+{
+  "fixed_partitioning": true,
+  "num_cores": 1,
+  "processes": [
+    {
+      "cpu_time_ms": 1,
+      "name": "gain/1",
+      "period_ms": 10,
+      "pinned_core": null,
+      "priority": 0
+    },
+    {
+      "cpu_time_ms": 2,
+      "dependencies": [
+        "gain/1"
+      ],
+      "name": "NoiseReduction/1",
+      "period_ms": 30,
+      "pinned_core": null,
+      "priority": 0
+    },
+    {
+      "cpu_time_ms": 1,
+      "dependencies": [
+        "NoiseReduction/1"
+      ],
+      "name": "gain/2",
+      "period_ms": 10,
+      "pinned_core": null,
+      "priority": 0
+    }
+  ],
+  "scheduling_name": "topology-NoiseReduction-v1",
+  "scheduling_version": "1.0",
+  "simulation_duration_ms": 1000,
+  "tick_period_ms": 1,
+  "topology_file": "topology-NoiseReduction-v1.json",
+  "topology_name": "topology-NoiseReduction-v1",
+  "topology_version": "1.0",
+  "use_cases": []
+}

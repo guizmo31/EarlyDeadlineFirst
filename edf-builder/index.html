@@ -9,17 +9,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety Topology Builder</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/shared/nav.css">
 </head>
 <body>
     <header>
-        <h1>Safety Topology Builder</h1>
+        <h1>Builder</h1>
+        <span id="topology-context" class="topology-badge"></span>
+        <nav id="tool-nav"></nav>
+        <script src="/shared/nav.js"></script>
     </header>
     <div id="app">
         <!-- Left Panel: Module Library -->
         <aside id="library-panel">
             <h2>Modules</h2>
             <div id="create-module-bar">
-                <button id="btn-open-create-modal">CREATE</button>
+                <button id="btn-import-rust-module" title="Import from Rust Module Library">IMPORT</button>
             </div>
             <div id="module-list"></div>
         </aside>
@@ -120,11 +124,13 @@
                 <button id="btn-zoom-reset" title="Reset zoom">1:1</button>
                 <button id="btn-save-topology" title="Save topology as JSON">SAVE Topology</button>
                 <button id="btn-import" title="Load a topology">Load Topology</button>
-                <button id="btn-generate-edf" title="Generate EDF config and launch simulator">LAUNCH EDF Scheduling</button>
+                <button id="btn-generate-edf" title="Generate EDF config and launch scheduler">Launch Scheduler</button>
             </div>
             <div id="canvas-viewport">
-                <svg id="connections-svg"></svg>
-                <div id="canvas"></div>
+                <div id="canvas-scroll-area">
+                    <svg id="connections-svg"></svg>
+                    <div id="canvas"></div>
+                </div>
             </div>
         </main>
 
@@ -140,7 +146,7 @@
     <!-- Modal: EDF Scheduling Parameters -->
     <div id="edf-modal-overlay" class="hidden">
         <div id="modal-edf">
-            <h3>LAUNCH EDF Scheduling</h3>
+            <h3>Launch Scheduler</h3>
             <div class="modal-row">
                 <div class="modal-field">
                     <label for="edf-tick-period">Tick Period (ms)</label>
@@ -166,10 +172,6 @@
                     <label for="edf-chain-constraints">Chain Constraints (dependencies)</label>
                     <input type="checkbox" id="edf-chain-constraints" checked>
                 </div>
-            </div>
-            <div class="modal-field">
-                <label for="edf-save-path">Save Path</label>
-                <input type="text" id="edf-save-path" value="edf-config.json" style="width:100%;font-size:13px;">
             </div>
             <div class="modal-field">
                 <label>Instances → Processes</label>

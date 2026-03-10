@@ -1,0 +1,192 @@
+{
+  "tick_period_ms": 1,
+  "simulation_duration_ms": 200,
+  "num_cores": 2,
+  "fixed_partitioning": false,
+  "processes": [
+    {
+      "name": "Mic_Main",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": 0
+    },
+    {
+      "name": "Mic_Secondary",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": 0
+    },
+    {
+      "name": "BeamForm_HF",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["Mic_Main", "Mic_Secondary"]
+    },
+    {
+      "name": "AEC_Main",
+      "period_ms": 20,
+      "cpu_time_ms": 3,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["BeamForm_HF"]
+    },
+    {
+      "name": "NR_Uplink",
+      "period_ms": 20,
+      "cpu_time_ms": 2,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["AEC_Main"]
+    },
+    {
+      "name": "AGC_Uplink",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["NR_Uplink"]
+    },
+    {
+      "name": "VAD_Uplink",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["AGC_Uplink"]
+    },
+    {
+      "name": "SRC_48k_to_8k",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["VAD_Uplink"]
+    },
+    {
+      "name": "AMR_Encoder",
+      "period_ms": 20,
+      "cpu_time_ms": 2,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["SRC_48k_to_8k"]
+    },
+    {
+      "name": "DTX_TX",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["AMR_Encoder", "VAD_Uplink"]
+    },
+    {
+      "name": "Jitter_RX",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": 1
+    },
+    {
+      "name": "AMR_Decoder",
+      "period_ms": 20,
+      "cpu_time_ms": 2,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["Jitter_RX"]
+    },
+    {
+      "name": "CNG_Downlink",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["AMR_Decoder"]
+    },
+    {
+      "name": "SRC_8k_to_48k",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["CNG_Downlink"]
+    },
+    {
+      "name": "AGC_Downlink",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["SRC_8k_to_48k"]
+    },
+    {
+      "name": "EQ_Voice",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["AGC_Downlink"]
+    },
+    {
+      "name": "Gain_Volume",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["EQ_Voice"]
+    },
+    {
+      "name": "Limiter_Out",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["Gain_Volume"]
+    },
+    {
+      "name": "Mixer_DL",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["Limiter_Out"]
+    },
+    {
+      "name": "Speaker_Main",
+      "period_ms": 20,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": 1,
+      "dependencies": ["Mixer_DL"]
+    }
+  ],
+  "use_cases": [
+    {
+      "name": "Ringtone",
+      "active_processes": ["Mixer_DL", "Limiter_Out", "Speaker_Main"]
+    },
+    {
+      "name": "VoiceCall_HandsFree",
+      "active_processes": [
+        "Mic_Main", "Mic_Secondary", "BeamForm_HF", "AEC_Main", "NR_Uplink", "AGC_Uplink", "VAD_Uplink", "SRC_48k_to_8k", "AMR_Encoder", "DTX_TX",
+        "Jitter_RX", "AMR_Decoder", "CNG_Downlink", "SRC_8k_to_48k", "AGC_Downlink", "EQ_Voice", "Gain_Volume", "Limiter_Out", "Mixer_DL", "Speaker_Main"
+      ]
+    },
+    {
+      "name": "VoiceCall_Handset",
+      "active_processes": [
+        "Mic_Main", "AEC_Main", "NR_Uplink", "AGC_Uplink", "VAD_Uplink", "SRC_48k_to_8k", "AMR_Encoder", "DTX_TX",
+        "Jitter_RX", "AMR_Decoder", "CNG_Downlink", "SRC_8k_to_48k", "AGC_Downlink", "EQ_Voice", "Gain_Volume", "Limiter_Out", "Mixer_DL", "Speaker_Main"
+      ]
+    },
+    {
+      "name": "VoiceCall_Bluetooth",
+      "active_processes": [
+        "Mic_Main", "AEC_Main", "NR_Uplink", "AGC_Uplink", "VAD_Uplink", "SRC_48k_to_8k", "AMR_Encoder", "DTX_TX",
+        "Jitter_RX", "AMR_Decoder", "CNG_Downlink", "SRC_8k_to_48k", "AGC_Downlink", "EQ_Voice", "Gain_Volume", "Limiter_Out", "Mixer_DL", "Speaker_Main"
+      ]
+    }
+  ]
+}

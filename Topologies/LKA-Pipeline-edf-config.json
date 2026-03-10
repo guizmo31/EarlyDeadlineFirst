@@ -1,0 +1,61 @@
+{
+  "tick_period_ms": 1,
+  "simulation_duration_ms": 200,
+  "num_cores": 2,
+  "fixed_partitioning": false,
+  "processes": [
+    {
+      "name": "Camera_Front",
+      "period_ms": 33,
+      "cpu_time_ms": 5,
+      "priority": 0,
+      "pinned_core": 0
+    },
+    {
+      "name": "LaneDetect_Main",
+      "period_ms": 33,
+      "cpu_time_ms": 8,
+      "priority": 0,
+      "pinned_core": 0,
+      "dependencies": ["Camera_Front"]
+    },
+    {
+      "name": "LanePos_Est",
+      "period_ms": 33,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["LaneDetect_Main"]
+    },
+    {
+      "name": "LKA_PathPlan",
+      "period_ms": 33,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": ["LanePos_Est"]
+    },
+    {
+      "name": "SteerCtrl_PID",
+      "period_ms": 10,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": 1,
+      "dependencies": ["LKA_PathPlan"]
+    },
+    {
+      "name": "EPS_Actuator",
+      "period_ms": 10,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": 1,
+      "dependencies": ["SteerCtrl_PID"]
+    }
+  ],
+  "use_cases": [
+    {
+      "name": "LKA_Active",
+      "active_processes": ["Camera_Front", "LaneDetect_Main", "LanePos_Est", "LKA_PathPlan", "SteerCtrl_PID", "EPS_Actuator"]
+    }
+  ]
+}

@@ -19,6 +19,11 @@
     let lastSimConfig = null; // config sent to server (for Play EDF)
     let tooltipAbort = null;
 
+    // Topology context from localStorage
+    { const saved = localStorage.getItem('edf-topology-name');
+      const el = document.getElementById('topology-context');
+      if (saved && el) el.textContent = saved; }
+
     // Use Cases state: loaded from config, toggled by checkboxes
     let useCases = [];       // { name, active, process_names }
     let allProcesses = [];   // full process list from config (never mutated)
@@ -231,7 +236,26 @@
             lastSimConfig = buildConfig();
             showStats(result);
             drawGantt(result, filteredProcesses, duration);
-            document.getElementById("play-edf-btn").disabled = false;
+            localStorage.setItem("edf-has-scheduler-config", "true");
+            if (window.edfNavRefresh) window.edfNavRefresh();
+
+            // Auto-save viewer-data.json so Play Scheduler always has fresh data
+            const viewerData = {
+                config: lastSimConfig,
+                result: lastResult,
+                topology_file: localStorage.getItem('edf-topology-file') || null,
+                scheduling_file: localStorage.getItem('edf-scheduling-file') || null,
+            };
+            fetch(`/api/topologies/viewer-data.json`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(viewerData, null, 2),
+            }).catch(() => {});
+            fetch(`${MCP_HTTP}/files/viewer-data.json`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(viewerData, null, 2),
+            }).catch(() => {});
         } catch (err) {
             showError(`Network error: ${err.message}`);
         }
@@ -243,9 +267,41 @@
         errorBox.classList.remove("hidden");
     }
 
+    function showSchedulability(result) {
+        const box = document.getElementById("schedulability-box");
+        const sa = result.schedulability;
+        if (!sa) { box.classList.add("hidden"); return; }
+
+        box.classList.remove("hidden");
+        box.className = ""; // reset
+        const verdictLower = sa.verdict.toLowerCase();
+        box.classList.add(`verdict-${verdictLower}`);
+
+        let html = `<h4>Schedulability: ${sa.verdict}</h4>`;
+        html += `<p>U = ${(sa.total_utilization * 100).toFixed(1)}%`;
+        html += ` — Bound = ${(sa.utilization_bound * 100).toFixed(1)}%`;
+        html += ` — U_max = ${(sa.max_individual_utilization * 100).toFixed(1)}%</p>`;
+
+        if (sa.cycle_detected) {
+            html += `<p style="color:#ff6b81;font-weight:bold;">Dependency cycle: ${sa.cycle_path.join(' → ')}</p>`;
+        }
+
+        if (sa.details && sa.details.length > 0) {
+            html += '<ul class="analysis-details">';
+            for (const d of sa.details) {
+                html += `<li>${d}</li>`;
+            }
+            html += '</ul>';
+        }
+        box.innerHTML = html;
+    }
+
     function showStats(result) {
         const statsDiv = document.getElementById("stats");
         statsDiv.classList.remove("hidden");
+
+        // Show schedulability analysis
+        showSchedulability(result);
 
         const numCores = result.num_cores || 1;
         const dur = result.total_duration_ms;
@@ -302,6 +358,26 @@
                 .map(m => `${m.process_name} @ ${m.deadline_ms}ms (${m.remaining_ms}ms left)`)
                 .join(", ");
             missSpan.title = details;
+        }
+
+        // Budget overruns
+        const overrunsDiv = document.getElementById("budget-overruns");
+        overrunsDiv.innerHTML = "";
+        if (result.budget_overruns && result.budget_overruns.length > 0) {
+            overrunsDiv.innerHTML = `<p style="color:#ff9999;font-weight:bold;">WCET Overruns: ${result.budget_overruns.length}</p>` +
+                result.budget_overruns.map(o =>
+                    `<p class="overrun-item">${o.process_name} @ ${o.time_ms}ms (consumed ${o.consumed_ms}ms / budget ${o.budget_ms}ms)</p>`
+                ).join("");
+        }
+
+        // Degraded mode events
+        const degradedDiv = document.getElementById("degraded-events");
+        degradedDiv.innerHTML = "";
+        if (result.degraded_mode_events && result.degraded_mode_events.length > 0) {
+            degradedDiv.innerHTML = `<p style="color:#ffcc00;font-weight:bold;">Degraded Mode: ${result.degraded_mode_events.length} event(s)</p>` +
+                result.degraded_mode_events.map(d =>
+                    `<p class="degraded-item">${d.process_name} @ ${d.time_ms}ms — ${d.reason}</p>`
+                ).join("");
         }
     }
 
@@ -726,25 +802,62 @@
 
     async function saveConfig() {
         const config = buildConfig();
+        // Add topology reference from localStorage
+        const topoFile = localStorage.getItem('edf-topology-file');
+        const topoName = localStorage.getItem('edf-topology-name');
+        const topoVersion = localStorage.getItem('edf-topology-version');
+        if (topoFile) config.topology_file = topoFile;
+        if (topoName) config.topology_name = topoName;
+        if (topoVersion) config.topology_version = topoVersion;
+
+        // Determine scheduling filename — prompt if not yet named
+        let schedFile = localStorage.getItem('edf-scheduling-file');
+        if (!schedFile) {
+            const defaultName = topoName || 'config';
+            const schedName = prompt('Scheduling config name:', defaultName);
+            if (schedName === null) return;
+            const schedVersion = prompt('Scheduling version:', '1.0');
+            if (schedVersion === null) return;
+            const clean = (schedName.trim() || 'config').replace(/\s+/g, '-');
+            const ver = schedVersion.trim() || '1.0';
+            schedFile = `scheduling_${clean}_v${ver}.json`;
+            config.scheduling_name = schedName.trim() || 'config';
+            config.scheduling_version = ver;
+            localStorage.setItem('edf-scheduling-file', schedFile);
+        }
+
         const json = JSON.stringify(config, null, 2);
-        try {
-            const resp = await fetch(`${MCP_HTTP}/files/edf-config.json`, {
+        // Save to both MCP and edf-server
+        const saves = [];
+        saves.push(
+            fetch(`${MCP_HTTP}/files/${encodeURIComponent(schedFile)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: json,
-            });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            showToast("Config saved to server");
-        } catch {
-            // Fallback: browser download
+            }).catch(() => null)
+        );
+        saves.push(
+            fetch(`/api/topologies/${encodeURIComponent(schedFile)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: json,
+            }).catch(() => null)
+        );
+        const results = await Promise.all(saves);
+        if (results.some(r => r && r.ok)) {
+            showToast(`Saved: ${schedFile}`);
+            localStorage.setItem("edf-has-scheduler-config", "true");
+            if (window.edfNavRefresh) window.edfNavRefresh();
+        } else {
+            // Both servers failed — download as file
             const blob = new Blob([json], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "edf-config.json";
+            a.download = schedFile;
             a.click();
             URL.revokeObjectURL(url);
-            showToast("Config downloaded (server unavailable)");
+            showToast("Config downloaded (servers unavailable)");
         }
     }
 
@@ -768,6 +881,11 @@
         document.getElementById("sim-duration").value = config.simulation_duration_ms || 120;
         document.getElementById("num-cores").value = config.num_cores || 1;
         document.getElementById("fixed-partitioning").checked = !!config.fixed_partitioning;
+
+        // Restore topology reference from scheduling config into localStorage
+        if (config.topology_file) localStorage.setItem('edf-topology-file', config.topology_file);
+        if (config.topology_name) localStorage.setItem('edf-topology-name', config.topology_name);
+        if (config.topology_version) localStorage.setItem('edf-topology-version', config.topology_version);
 
         // Clear existing processes
         document.getElementById("process-list").innerHTML = "";
@@ -902,28 +1020,106 @@
             if (e.key === "Enter") runSimulation();
         });
 
-        // Play EDF button
-        document.getElementById("play-edf-btn").addEventListener("click", async function () {
-            if (!lastResult || !lastSimConfig) return;
-            const viewerData = { config: lastSimConfig, result: lastResult };
-            try {
-                await fetch(`${MCP_HTTP}/files/viewer-data.json`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(viewerData, null, 2),
-                });
-            } catch (err) {
-                showToast("Could not save viewer data: " + err.message);
-            }
-            window.open("/viewer/", "_blank");
-        });
     }
 
     init();
 
-    // Auto-load config from URL parameter and run simulation
-    const autoloadUrl = new URLSearchParams(window.location.search).get('autoload');
-    if (autoloadUrl) {
+    // ---- Load from topology file: generate processes from instances ----
+
+    function loadFromTopology(topoData, params) {
+        const instances = topoData.instances || [];
+        const modules = topoData.modules || [];
+        const connections = topoData.connections || [];
+        const ucDefs = topoData.useCases || [];
+        const chainConstraints = params.chains !== '0';
+
+        // Clear scheduling file — we're starting fresh from a topology
+        localStorage.removeItem('edf-scheduling-file');
+        localStorage.removeItem('edf-has-scheduler-config');
+
+        // Set scheduling params from URL or defaults
+        document.getElementById("tick-period").value = params.tick || 1;
+        document.getElementById("sim-duration").value = params.duration || 1000;
+        document.getElementById("num-cores").value = params.cores || 1;
+        document.getElementById("fixed-partitioning").checked = params.fixed !== '0';
+
+        // Clear existing processes
+        document.getElementById("process-list").innerHTML = "";
+        processCounter = 0;
+
+        // Build processes from topology instances
+        const COLORS_LIST = [
+            "#e94560", "#00b4d8", "#90be6d", "#f9c74f",
+            "#f3722c", "#43aa8b", "#577590", "#f8961e",
+            "#9b5de5", "#06d6a0", "#ef476f", "#118ab2",
+        ];
+        instances.forEach((inst, idx) => {
+            const mod = modules.find(m => m.id === inst.moduleId);
+            const wcet_us = mod ? mod.wcet_us : 0;
+            const period_us = inst.activation === 'PERIODIC' ? inst.period_us :
+                              inst.activation === 'SPORADIC' ? inst.min_interarrival_us : 10000;
+            const period_ms = Math.max(1, Math.round(period_us / 1000));
+            const cpu_ms = Math.max(1, Math.round(wcet_us / 1000));
+            const color = COLORS_LIST[idx % COLORS_LIST.length];
+
+            // Compute dependencies from connections
+            let deps = [];
+            if (chainConstraints) {
+                const incomingConns = connections.filter(c => c.toInstanceId === inst.id);
+                deps = incomingConns
+                    .map(c => {
+                        const fromInst = instances.find(i => i.id === c.fromInstanceId);
+                        return fromInst ? fromInst.name : null;
+                    })
+                    .filter(Boolean);
+            }
+
+            createProcessEntry(inst.name, period_ms, cpu_ms, color, 0, null, deps);
+        });
+
+        // Load use cases
+        useCases = ucDefs.map(uc => ({
+            name: uc.name,
+            active: uc.active !== undefined ? uc.active : true,
+            process_names: uc.instanceIds
+                .map(iid => instances.find(i => i.id === iid))
+                .filter(Boolean)
+                .map(i => i.name),
+        }));
+        allProcesses = [];
+        renderUseCases();
+        applyUseCaseFilter();
+    }
+
+    // ---- Auto-load from URL params or localStorage ----
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoloadUrl = urlParams.get('autoload');
+    const topologyParam = urlParams.get('topology');
+
+    if (topologyParam) {
+        // Load from topology file (from Builder "Launch Scheduler")
+        fetch(`/api/topologies/${encodeURIComponent(topologyParam)}`)
+            .then(resp => {
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                return resp.json();
+            })
+            .then(topoData => {
+                loadFromTopology(topoData, {
+                    tick: urlParams.get('tick'),
+                    duration: urlParams.get('duration'),
+                    cores: urlParams.get('cores'),
+                    fixed: urlParams.get('fixed'),
+                    chains: urlParams.get('chains'),
+                });
+                showToast(`Loaded topology: ${topoData.name || topologyParam}`);
+                setTimeout(() => runSimulation(), 100);
+            })
+            .catch(err => {
+                showError(`Failed to load topology: ${err.message}`);
+            });
+    } else if (autoloadUrl) {
+        // Load from scheduling config URL (legacy autoload)
         fetch(autoloadUrl)
             .then(resp => {
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -936,5 +1132,47 @@
             .catch(err => {
                 showError(`Auto-load failed: ${err.message}`);
             });
+    } else {
+        // No URL params: try restoring last scheduling config, then topology
+        const savedSchedFile = localStorage.getItem('edf-scheduling-file');
+        const savedTopoFile = localStorage.getItem('edf-topology-file');
+        if (savedSchedFile) {
+            fetch(`/api/topologies/${encodeURIComponent(savedSchedFile)}`)
+                .then(resp => {
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    return resp.json();
+                })
+                .then(config => {
+                    loadConfig(config);
+                    showToast(`Restored: ${savedSchedFile}`);
+                    setTimeout(() => runSimulation(), 100);
+                })
+                .catch(() => {
+                    // Scheduling file not found — try loading from topology
+                    if (savedTopoFile) {
+                        fetch(`/api/topologies/${encodeURIComponent(savedTopoFile)}`)
+                            .then(r => r.ok ? r.json() : Promise.reject())
+                            .then(topoData => {
+                                loadFromTopology(topoData, {});
+                                showToast(`Loaded topology: ${topoData.name || savedTopoFile}`);
+                                setTimeout(() => runSimulation(), 100);
+                            })
+                            .catch(() => {});
+                    }
+                });
+        } else if (savedTopoFile) {
+            // No scheduling config but topology exists — load processes from topology
+            fetch(`/api/topologies/${encodeURIComponent(savedTopoFile)}`)
+                .then(resp => {
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    return resp.json();
+                })
+                .then(topoData => {
+                    loadFromTopology(topoData, {});
+                    showToast(`Loaded topology: ${topoData.name || savedTopoFile}`);
+                    setTimeout(() => runSimulation(), 100);
+                })
+                .catch(() => {});
+        }
     }
 })();

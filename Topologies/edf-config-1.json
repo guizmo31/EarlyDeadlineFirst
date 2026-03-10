@@ -1,0 +1,29 @@
+{
+  "tick_period_ms": 1,
+  "simulation_duration_ms": 500,
+  "num_cores": 2,
+  "fixed_partitioning": true,
+  "processes": [
+    {
+      "name": "Pipeline-1",
+      "period_ms": 100,
+      "cpu_time_ms": 30,
+      "priority": 0,
+      "pinned_core": null
+    },
+    {
+      "name": "Pipeline-2",
+      "period_ms": 100,
+      "cpu_time_ms": 25,
+      "priority": 0,
+      "pinned_core": null
+    },
+    {
+      "name": "Pipeline-3",
+      "period_ms": 100,
+      "cpu_time_ms": 23,
+      "priority": 1,
+      "pinned_core": null
+    }
+  ]
+}

@@ -3,6 +3,11 @@
 // For commercial licensing, contact the author.
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+pub mod module_trait;
+pub mod plugin_api;
+pub use module_trait::*;
+pub use plugin_api::*;
+
 use serde::{Deserialize, Serialize};
 
 /// Configuration for a single process/task.
@@ -98,6 +103,47 @@ pub struct ChainMetrics {
     pub avg_e2e_ms: f64,
 }
 
+/// Result of the static schedulability analysis (run before simulation).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SchedulabilityAnalysis {
+    /// Overall verdict: "PASS", "FAIL", or "INCONCLUSIVE".
+    pub verdict: String,
+    /// Total utilization U = Σ(WCET/period).
+    pub total_utilization: f64,
+    /// Per-core utilization bound (1.0 for single core, Baruah-Baker for multi).
+    pub utilization_bound: f64,
+    /// Maximum individual utilization (max WCET/period among all processes).
+    pub max_individual_utilization: f64,
+    /// Whether a dependency cycle was detected (= guaranteed deadlock).
+    pub cycle_detected: bool,
+    /// If a cycle exists, the names of processes in the cycle.
+    pub cycle_path: Vec<String>,
+    /// Human-readable explanation.
+    pub details: Vec<String>,
+}
+
+/// A WCET budget overrun event.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BudgetOverrun {
+    pub process_name: String,
+    /// The time at which the overrun was detected.
+    pub time_ms: u64,
+    /// How much execution time was consumed before being killed.
+    pub consumed_ms: u64,
+    /// The configured WCET budget.
+    pub budget_ms: u64,
+}
+
+/// A degraded-mode event (job dropped due to overload).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DegradedModeEvent {
+    pub process_name: String,
+    /// Time at which the job was dropped.
+    pub time_ms: u64,
+    /// Reason for dropping.
+    pub reason: String,
+}
+
 /// Result of an EDF simulation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimulationResult {
@@ -108,6 +154,14 @@ pub struct SimulationResult {
     pub deadline_misses: Vec<DeadlineMiss>,
     pub process_metrics: Vec<ProcessMetrics>,
     pub chain_metrics: Vec<ChainMetrics>,
+    /// Static schedulability analysis (computed before simulation).
+    pub schedulability: SchedulabilityAnalysis,
+    /// WCET budget overruns detected during simulation.
+    #[serde(default)]
+    pub budget_overruns: Vec<BudgetOverrun>,
+    /// Jobs dropped in degraded mode.
+    #[serde(default)]
+    pub degraded_mode_events: Vec<DegradedModeEvent>,
 }
 
 /// Runtime state for a process job.
@@ -119,6 +173,10 @@ struct Job {
     priority: u32,
     pinned_core: Option<usize>,
     release_time: u64,
+    /// Total CPU time consumed so far (for budget enforcement).
+    consumed_ms: u64,
+    /// Original WCET budget for this job.
+    budget_ms: u64,
 }
 
 impl Job {
@@ -146,6 +204,178 @@ fn push_or_merge(schedule: &mut Vec<ScheduleEntry>, core: usize, time: u64, dur:
     });
 }
 
+// ============================================================
+// STATIC ANALYSIS — run before simulation
+// ============================================================
+
+/// Detect cycles in the dependency graph using DFS.
+/// Returns (has_cycle, cycle_path_names).
+fn detect_dependency_cycles(processes: &[ProcessConfig]) -> (bool, Vec<String>) {
+    let n = processes.len();
+    // Build adjacency: process index -> list of dependent process indices
+    let adj: Vec<Vec<usize>> = processes.iter().map(|p| {
+        p.dependencies.iter().filter_map(|dep_name| {
+            processes.iter().position(|q| q.name == *dep_name)
+        }).collect()
+    }).collect();
+
+    // DFS with 3-color marking: 0=white, 1=gray (in stack), 2=black (done)
+    let mut color = vec![0u8; n];
+    let mut parent = vec![usize::MAX; n];
+
+    fn dfs(
+        node: usize, adj: &[Vec<usize>], color: &mut [u8], parent: &mut [usize],
+        processes: &[ProcessConfig],
+    ) -> Option<Vec<String>> {
+        color[node] = 1; // gray
+        for &dep in &adj[node] {
+            if color[dep] == 1 {
+                // Back edge found — extract cycle
+                let mut cycle = vec![processes[dep].name.clone()];
+                let mut cur = node;
+                while cur != dep {
+                    cycle.push(processes[cur].name.clone());
+                    cur = parent[cur];
+                    if cur == usize::MAX { break; }
+                }
+                cycle.push(processes[dep].name.clone());
+                cycle.reverse();
+                return Some(cycle);
+            }
+            if color[dep] == 0 {
+                parent[dep] = node;
+                if let Some(cycle) = dfs(dep, adj, color, parent, processes) {
+                    return Some(cycle);
+                }
+            }
+        }
+        color[node] = 2; // black
+        None
+    }
+
+    for i in 0..n {
+        if color[i] == 0 {
+            if let Some(cycle) = dfs(i, &adj, &mut color, &mut parent, processes) {
+                return (true, cycle);
+            }
+        }
+    }
+    (false, vec![])
+}
+
+/// Run static schedulability analysis.
+pub fn analyze_schedulability(config: &SchedulerConfig) -> SchedulabilityAnalysis {
+    let processes = &config.processes;
+    let num_cores = config.num_cores.max(1);
+    let mut details = Vec::new();
+
+    if processes.is_empty() {
+        return SchedulabilityAnalysis {
+            verdict: "PASS".to_string(),
+            total_utilization: 0.0,
+            utilization_bound: num_cores as f64,
+            max_individual_utilization: 0.0,
+            cycle_detected: false,
+            cycle_path: vec![],
+            details: vec!["No processes configured.".to_string()],
+        };
+    }
+
+    // 1. Compute utilizations
+    let individual_utils: Vec<f64> = processes.iter()
+        .map(|p| if p.period_ms > 0 { p.cpu_time_ms as f64 / p.period_ms as f64 } else { f64::INFINITY })
+        .collect();
+    let total_u: f64 = individual_utils.iter().sum();
+    let max_u: f64 = individual_utils.iter().cloned().fold(0.0f64, f64::max);
+
+    // 2. Detect dependency cycles
+    let (cycle_detected, cycle_path) = detect_dependency_cycles(processes);
+    if cycle_detected {
+        details.push(format!("CRITICAL: Dependency cycle detected: {}",
+            cycle_path.join(" → ")));
+    }
+
+    // 3. Schedulability test
+    let mut verdict = "PASS".to_string();
+    let bound: f64;
+
+    if num_cores == 1 {
+        // Single-core EDF: necessary and sufficient condition U ≤ 1.0
+        bound = 1.0;
+        if total_u > 1.0 {
+            verdict = "FAIL".to_string();
+            details.push(format!(
+                "Single-core EDF: U = {:.4} > 1.0 — system is NOT schedulable.",
+                total_u));
+        } else {
+            details.push(format!(
+                "Single-core EDF: U = {:.4} ≤ 1.0 — schedulable (exact test).",
+                total_u));
+        }
+    } else {
+        // Multi-core global EDF: Baruah-Baker sufficient condition
+        // U ≤ m - (m-1) × U_max
+        let m = num_cores as f64;
+        bound = m - (m - 1.0) * max_u;
+
+        if total_u > m {
+            // Necessary condition fails: U > m
+            verdict = "FAIL".to_string();
+            details.push(format!(
+                "Multi-core EDF ({} cores): U = {:.4} > {} — exceeds total capacity.",
+                num_cores, total_u, num_cores));
+        } else if max_u > 1.0 {
+            // A single process exceeds one core
+            verdict = "FAIL".to_string();
+            details.push(format!(
+                "Process with U_max = {:.4} > 1.0 — cannot fit on any single core.",
+                max_u));
+        } else if total_u <= bound {
+            // Sufficient condition passes
+            details.push(format!(
+                "Multi-core EDF ({} cores): U = {:.4} ≤ {:.4} (Baruah-Baker bound) — schedulable.",
+                num_cores, total_u, bound));
+        } else {
+            // Between bound and m: inconclusive
+            verdict = "INCONCLUSIVE".to_string();
+            details.push(format!(
+                "Multi-core EDF ({} cores): U = {:.4}, Baruah-Baker bound = {:.4}, capacity = {}. \
+                 Sufficient condition not met — simulation needed.",
+                num_cores, total_u, bound, num_cores));
+        }
+    }
+
+    // 4. Per-process warnings
+    for (i, p) in processes.iter().enumerate() {
+        let u = individual_utils[i];
+        if u > 1.0 {
+            details.push(format!(
+                "WARNING: Process '{}' has U = {:.4} > 1.0 (WCET {} > period {}).",
+                p.name, u, p.cpu_time_ms, p.period_ms));
+        }
+        if p.period_ms == 0 {
+            details.push(format!(
+                "ERROR: Process '{}' has period = 0 (division by zero).", p.name));
+            verdict = "FAIL".to_string();
+        }
+    }
+
+    // 5. Cycle overrides verdict
+    if cycle_detected {
+        verdict = "FAIL".to_string();
+    }
+
+    SchedulabilityAnalysis {
+        verdict,
+        total_utilization: total_u,
+        utilization_bound: if num_cores == 1 { 1.0 } else { bound },
+        max_individual_utilization: max_u,
+        cycle_detected,
+        cycle_path,
+        details,
+    }
+}
+
 /// Run the EDF scheduling simulation.
 pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
     let tick = config.tick_period_ms;
@@ -153,6 +383,11 @@ pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
     let processes = &config.processes;
     let num_cores = config.num_cores.max(1);
     let fixed_part = config.fixed_partitioning;
+
+    // Run static analysis first
+    let schedulability = analyze_schedulability(config);
+
+    let empty_analysis = || schedulability.clone();
 
     if tick == 0 || duration == 0 || processes.is_empty() {
         return SimulationResult {
@@ -163,12 +398,19 @@ pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
             deadline_misses: vec![],
             process_metrics: vec![],
             chain_metrics: vec![],
+            schedulability: empty_analysis(),
+            budget_overruns: vec![],
+            degraded_mode_events: vec![],
         };
     }
 
     let utilization: f64 = processes.iter()
-        .map(|p| p.cpu_time_ms as f64 / p.period_ms as f64)
+        .map(|p| if p.period_ms > 0 { p.cpu_time_ms as f64 / p.period_ms as f64 } else { 0.0 })
         .sum();
+
+    // Budget enforcement: track total execution per job to detect overruns
+    let mut budget_overruns: Vec<BudgetOverrun> = Vec::new();
+    let mut degraded_mode_events: Vec<DegradedModeEvent> = Vec::new();
 
     // Build dependency map: process_index -> Vec<dependency process indices>
     let dep_map: Vec<Vec<usize>> = processes.iter().map(|p| {
@@ -238,6 +480,8 @@ pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
                     priority: proc.priority,
                     pinned_core: effective_pin,
                     release_time: next_release[i],
+                    consumed_ms: 0,
+                    budget_ms: proc.cpu_time_ms,
                 });
                 job_counts[i] += 1;
                 next_release[i] += proc.period_ms;
@@ -318,8 +562,36 @@ pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
                     advance = advance.min(ready_jobs[*ji].remaining_ms);
                 }
             }
-            // Safety: always advance at least 1ms to avoid infinite loops
-            if advance == 0 { advance = remaining_tick; }
+
+            // Degraded mode: if advance == 0, all assigned jobs have 0 remaining
+            // but were not cleaned up. This indicates a scheduling anomaly.
+            // Drop the lowest-priority unblocked job to make progress.
+            if advance == 0 {
+                // Find lowest-priority (highest deadline) unblocked job to drop
+                let mut drop_candidate: Option<usize> = None;
+                for (ji, job) in ready_jobs.iter().enumerate() {
+                    if !blocked[ji] {
+                        match drop_candidate {
+                            None => drop_candidate = Some(ji),
+                            Some(prev) => {
+                                if job.sort_key() > ready_jobs[prev].sort_key() {
+                                    drop_candidate = Some(ji);
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(ji) = drop_candidate {
+                    let job = &ready_jobs[ji];
+                    degraded_mode_events.push(DegradedModeEvent {
+                        process_name: processes[job.process_index].name.clone(),
+                        time_ms: sub_time,
+                        reason: "Dropped to resolve scheduling deadlock (advance=0)".to_string(),
+                    });
+                    ready_jobs.remove(ji);
+                }
+                advance = remaining_tick;
+            }
 
             // Execute the sub-interval on each core
             for (core, assignment) in core_assignment.iter().enumerate() {
@@ -329,6 +601,19 @@ pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
                     let name = &processes[job.process_index].name;
                     push_or_merge(&mut schedule, core, sub_time, run, name);
                     job.remaining_ms -= run;
+                    job.consumed_ms += run;
+
+                    // Budget enforcement: detect if consumed exceeds budget (WCET overrun)
+                    if job.consumed_ms > job.budget_ms {
+                        budget_overruns.push(BudgetOverrun {
+                            process_name: processes[job.process_index].name.clone(),
+                            time_ms: sub_time + run,
+                            consumed_ms: job.consumed_ms,
+                            budget_ms: job.budget_ms,
+                        });
+                        // Kill the job: set remaining to 0
+                        job.remaining_ms = 0;
+                    }
 
                     if fixed_part && process_affinity[job.process_index].is_none() {
                         process_affinity[job.process_index] = Some(core);
@@ -446,6 +731,9 @@ pub fn simulate(config: &SchedulerConfig) -> SimulationResult {
         deadline_misses,
         process_metrics,
         chain_metrics,
+        schedulability,
+        budget_overruns,
+        degraded_mode_events,
     }
 }
 

@@ -1,0 +1,765 @@
+{
+  "version": "2.0",
+  "name": "VoiceCall-3GPP",
+  "description": "3GPP-certified voice call audio system — full duplex with AEC, AMR codec, Bluetooth, ringtone. 4 Use Cases: Ringtone, Hands-Free, Handset, Bluetooth.",
+  "category": "Audio",
+  "savedAt": "2026-03-08T14:00:00.000Z",
+  "modules": [
+    {
+      "id": "mod-mic",
+      "uuid": "b2000001-0000-0000-0000-000000000001",
+      "name": "MicCapture",
+      "version": 1,
+      "input_ports": [],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "PCM audio from microphone (f32 LE)" }
+      ],
+      "config_params": [
+        { "name": "sample_rate", "data_type": "usize", "default_value": 48000, "description": "ADC sample rate in Hz" },
+        { "name": "channels",    "data_type": "usize", "default_value": 1,     "description": "Number of channels" },
+        { "name": "bit_depth",   "data_type": "usize", "default_value": 16,    "description": "ADC bit depth" }
+      ],
+      "wcet_us": 200, "bcet_us": 50, "typical_us": 100,
+      "stack_size_bytes": 4096, "static_mem_bytes": 8192,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-mic2",
+      "uuid": "b2000001-0000-0000-0000-000000000002",
+      "name": "MicCapture",
+      "version": 1,
+      "input_ports": [],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "PCM audio from secondary microphone" }
+      ],
+      "config_params": [
+        { "name": "sample_rate", "data_type": "usize", "default_value": 48000, "description": "ADC sample rate" },
+        { "name": "channels",    "data_type": "usize", "default_value": 1,     "description": "Number of channels" },
+        { "name": "bit_depth",   "data_type": "usize", "default_value": 16,    "description": "ADC bit depth" }
+      ],
+      "wcet_us": 200, "bcet_us": 50, "typical_us": 100,
+      "stack_size_bytes": 4096, "static_mem_bytes": 8192,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-spk",
+      "uuid": "b2000001-0000-0000-0000-000000000003",
+      "name": "SpeakerOutput",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "PCM audio to speaker (f32 LE)" }
+      ],
+      "output_ports": [],
+      "config_params": [
+        { "name": "sample_rate", "data_type": "usize", "default_value": 48000, "description": "DAC sample rate" },
+        { "name": "volume",      "data_type": "f32",   "default_value": 0.8,   "description": "Output volume (0-1)" }
+      ],
+      "wcet_us": 150, "bcet_us": 30, "typical_us": 80,
+      "stack_size_bytes": 4096, "static_mem_bytes": 4096,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-beam",
+      "uuid": "b2000001-0000-0000-0000-000000000004",
+      "name": "BeamForming",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "mic_0", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Primary microphone input" },
+        { "port_name": "mic_1", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Secondary microphone input" }
+      ],
+      "output_ports": [
+        { "port_name": "beam_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Beamformed audio output" }
+      ],
+      "config_params": [
+        { "name": "mic_spacing_mm",   "data_type": "f32", "default_value": 50.0, "description": "Distance between microphones in mm" },
+        { "name": "target_angle_deg", "data_type": "f32", "default_value": 0.0,  "description": "Target direction in degrees" }
+      ],
+      "wcet_us": 1000, "bcet_us": 200, "typical_us": 500,
+      "stack_size_bytes": 8192, "static_mem_bytes": 8192,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-aec",
+      "uuid": "b2000001-0000-0000-0000-000000000005",
+      "name": "AEC",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "mic_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Microphone signal (with echo)" },
+        { "port_name": "ref_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Speaker reference signal for echo estimation" }
+      ],
+      "output_ports": [
+        { "port_name": "echo_free", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Echo-cancelled audio output" }
+      ],
+      "config_params": [
+        { "name": "filter_length",  "data_type": "usize", "default_value": 256,  "description": "NLMS adaptive filter length" },
+        { "name": "step_size",      "data_type": "f32",   "default_value": 0.01, "description": "NLMS step size (mu)" },
+        { "name": "tail_length_ms", "data_type": "usize", "default_value": 64,   "description": "Echo tail length in ms" }
+      ],
+      "wcet_us": 3000, "bcet_us": 800, "typical_us": 1500,
+      "stack_size_bytes": 16384, "static_mem_bytes": 32768,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-nr",
+      "uuid": "b2000001-0000-0000-0000-000000000006",
+      "name": "NoiseReduction",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio with noise" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Noise-reduced audio" }
+      ],
+      "config_params": [
+        { "name": "threshold",   "data_type": "f32",   "default_value": 0.01, "description": "Noise gate threshold" },
+        { "name": "window_size", "data_type": "usize", "default_value": 5,    "description": "Smoothing window" }
+      ],
+      "wcet_us": 2000, "bcet_us": 200, "typical_us": 800,
+      "stack_size_bytes": 4096, "static_mem_bytes": 4096,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-agc-ul",
+      "uuid": "b2000001-0000-0000-0000-000000000007",
+      "name": "AGC",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio input" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Gain-controlled audio" }
+      ],
+      "config_params": [
+        { "name": "target_level", "data_type": "f32", "default_value": 0.5,  "description": "Target RMS level" },
+        { "name": "attack_ms",   "data_type": "f32", "default_value": 5.0,  "description": "Attack time in ms" },
+        { "name": "release_ms",  "data_type": "f32", "default_value": 50.0, "description": "Release time in ms" },
+        { "name": "max_gain",    "data_type": "f32", "default_value": 30.0, "description": "Maximum gain in dB" }
+      ],
+      "wcet_us": 400, "bcet_us": 100, "typical_us": 200,
+      "stack_size_bytes": 4096, "static_mem_bytes": 2048,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-vad",
+      "uuid": "b2000001-0000-0000-0000-000000000008",
+      "name": "VAD",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio to analyze" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio passthrough" },
+        { "port_name": "vad_flag",  "data_type": "u8[]",  "sample_size_bytes": 1, "description": "1=speech, 0=silence" }
+      ],
+      "config_params": [
+        { "name": "energy_threshold", "data_type": "f32",   "default_value": 0.005, "description": "Energy threshold for speech detection" },
+        { "name": "hangover_frames",  "data_type": "usize", "default_value": 5,     "description": "Hangover frames after speech" },
+        { "name": "frame_size",       "data_type": "usize", "default_value": 160,   "description": "Frame size in samples" }
+      ],
+      "wcet_us": 300, "bcet_us": 50, "typical_us": 150,
+      "stack_size_bytes": 4096, "static_mem_bytes": 2048,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-src-ul",
+      "uuid": "b2000001-0000-0000-0000-000000000009",
+      "name": "SampleRateConverter",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Input audio at source rate" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Resampled audio" }
+      ],
+      "config_params": [
+        { "name": "input_rate",  "data_type": "usize", "default_value": 48000, "description": "Input sample rate" },
+        { "name": "output_rate", "data_type": "usize", "default_value": 8000,  "description": "Output sample rate" }
+      ],
+      "wcet_us": 800, "bcet_us": 200, "typical_us": 400,
+      "stack_size_bytes": 8192, "static_mem_bytes": 8192,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-amr",
+      "uuid": "b2000001-0000-0000-0000-00000000000a",
+      "name": "AMRCodec",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "PCM audio to encode" }
+      ],
+      "output_ports": [
+        { "port_name": "encoded_out", "data_type": "u8[]", "sample_size_bytes": 1, "description": "AMR encoded frames" }
+      ],
+      "config_params": [
+        { "name": "bitrate",  "data_type": "usize", "default_value": 12200, "description": "AMR bitrate (4750-12200 NB, 6600-23850 WB)" },
+        { "name": "wideband", "data_type": "bool",  "default_value": false, "description": "Use AMR-WB (true) or AMR-NB (false)" }
+      ],
+      "wcet_us": 2000, "bcet_us": 500, "typical_us": 1200,
+      "stack_size_bytes": 16384, "static_mem_bytes": 16384,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-dtx",
+      "uuid": "b2000001-0000-0000-0000-00000000000b",
+      "name": "DTX",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "u8[]",  "sample_size_bytes": 1, "description": "Encoded audio frames" },
+        { "port_name": "vad_flag", "data_type": "u8[]",  "sample_size_bytes": 1, "description": "VAD flag (1=speech, 0=silence)" }
+      ],
+      "output_ports": [
+        { "port_name": "tx_out", "data_type": "u8[]", "sample_size_bytes": 1, "description": "Frames or SID frames for transmission" }
+      ],
+      "config_params": [
+        { "name": "sid_interval_frames", "data_type": "usize", "default_value": 8, "description": "SID update interval in frames" },
+        { "name": "sid_frame_size",      "data_type": "usize", "default_value": 5, "description": "SID frame size in bytes" }
+      ],
+      "wcet_us": 200, "bcet_us": 40, "typical_us": 100,
+      "stack_size_bytes": 4096, "static_mem_bytes": 2048,
+      "requires_fpu": false, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-jitter",
+      "uuid": "b2000001-0000-0000-0000-00000000000c",
+      "name": "JitterBuffer",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "packet_in", "data_type": "u8[]", "sample_size_bytes": 1, "description": "Incoming RTP voice packet" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "u8[]", "sample_size_bytes": 1, "description": "De-jittered audio frame" }
+      ],
+      "config_params": [
+        { "name": "min_delay_ms",    "data_type": "usize", "default_value": 20,  "description": "Minimum buffer delay in ms" },
+        { "name": "max_delay_ms",    "data_type": "usize", "default_value": 100, "description": "Maximum buffer delay in ms" },
+        { "name": "target_delay_ms", "data_type": "usize", "default_value": 40,  "description": "Target buffer delay in ms" }
+      ],
+      "wcet_us": 300, "bcet_us": 50, "typical_us": 150,
+      "stack_size_bytes": 4096, "static_mem_bytes": 65536,
+      "requires_fpu": false, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-amr-dec",
+      "uuid": "b2000001-0000-0000-0000-00000000000d",
+      "name": "AMRCodec",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Encoded frames to decode" }
+      ],
+      "output_ports": [
+        { "port_name": "encoded_out", "data_type": "u8[]", "sample_size_bytes": 1, "description": "Decoded PCM audio" }
+      ],
+      "config_params": [
+        { "name": "bitrate",  "data_type": "usize", "default_value": 12200, "description": "AMR bitrate" },
+        { "name": "wideband", "data_type": "bool",  "default_value": false, "description": "AMR-WB mode" }
+      ],
+      "wcet_us": 2000, "bcet_us": 500, "typical_us": 1200,
+      "stack_size_bytes": 16384, "static_mem_bytes": 16384,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-cng",
+      "uuid": "b2000001-0000-0000-0000-00000000000e",
+      "name": "CNG",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Decoded audio (may be silent)" },
+        { "port_name": "vad_flag", "data_type": "u8[]",  "sample_size_bytes": 1, "description": "VAD flag from remote" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio with comfort noise during silence" }
+      ],
+      "config_params": [
+        { "name": "noise_level", "data_type": "f32", "default_value": 0.002, "description": "Comfort noise level" },
+        { "name": "smoothing",   "data_type": "f32", "default_value": 0.95,  "description": "Noise smoothing factor" }
+      ],
+      "wcet_us": 200, "bcet_us": 40, "typical_us": 100,
+      "stack_size_bytes": 4096, "static_mem_bytes": 1024,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-src-dl",
+      "uuid": "b2000001-0000-0000-0000-00000000000f",
+      "name": "SampleRateConverter",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Input audio at codec rate" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Resampled audio at device rate" }
+      ],
+      "config_params": [
+        { "name": "input_rate",  "data_type": "usize", "default_value": 8000,  "description": "Codec sample rate" },
+        { "name": "output_rate", "data_type": "usize", "default_value": 48000, "description": "Device sample rate" }
+      ],
+      "wcet_us": 800, "bcet_us": 200, "typical_us": 400,
+      "stack_size_bytes": 8192, "static_mem_bytes": 8192,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-agc-dl",
+      "uuid": "b2000001-0000-0000-0000-000000000010",
+      "name": "AGC",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio input" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Gain-controlled audio" }
+      ],
+      "config_params": [
+        { "name": "target_level", "data_type": "f32", "default_value": 0.6,  "description": "Target RMS level for DL" },
+        { "name": "attack_ms",   "data_type": "f32", "default_value": 5.0,  "description": "Attack time" },
+        { "name": "release_ms",  "data_type": "f32", "default_value": 50.0, "description": "Release time" }
+      ],
+      "wcet_us": 400, "bcet_us": 100, "typical_us": 200,
+      "stack_size_bytes": 4096, "static_mem_bytes": 2048,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-eq",
+      "uuid": "b2000001-0000-0000-0000-000000000011",
+      "name": "Equalizer",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio to equalize" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Equalized audio" }
+      ],
+      "config_params": [
+        { "name": "band_gains", "data_type": "f32[]", "default_value": [0.0, 0.0, 0.0, 0.0, 0.0], "description": "5-band gains in dB (300/600/1k/2k/4k Hz)" }
+      ],
+      "wcet_us": 600, "bcet_us": 150, "typical_us": 300,
+      "stack_size_bytes": 4096, "static_mem_bytes": 4096,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-lim",
+      "uuid": "b2000001-0000-0000-0000-000000000012",
+      "name": "Limiter",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio to limit" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Peak-limited audio" }
+      ],
+      "config_params": [
+        { "name": "threshold",  "data_type": "f32", "default_value": 0.95, "description": "Limiting threshold (0-1)" },
+        { "name": "release_ms", "data_type": "f32", "default_value": 10.0, "description": "Release time in ms" },
+        { "name": "attack_ms",  "data_type": "f32", "default_value": 0.1,  "description": "Attack time in ms" }
+      ],
+      "wcet_us": 200, "bcet_us": 50, "typical_us": 100,
+      "stack_size_bytes": 4096, "static_mem_bytes": 1024,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-mixer",
+      "uuid": "b2000001-0000-0000-0000-000000000013",
+      "name": "Mixer",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "in_0", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Input channel 0" },
+        { "port_name": "in_1", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Input channel 1" },
+        { "port_name": "in_2", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Input channel 2" },
+        { "port_name": "in_3", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Input channel 3" }
+      ],
+      "output_ports": [
+        { "port_name": "mix_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Mixed audio output" }
+      ],
+      "config_params": [
+        { "name": "gains", "data_type": "f32[]", "default_value": [1.0, 1.0, 1.0, 1.0], "description": "Per-channel gain" }
+      ],
+      "wcet_us": 400, "bcet_us": 100, "typical_us": 200,
+      "stack_size_bytes": 4096, "static_mem_bytes": 2048,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-ring",
+      "uuid": "b2000001-0000-0000-0000-000000000014",
+      "name": "RingtoneGen",
+      "version": 1,
+      "input_ports": [],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Ringtone audio output" }
+      ],
+      "config_params": [
+        { "name": "frequency_hz", "data_type": "f32",    "default_value": 440.0,         "description": "Tone frequency in Hz" },
+        { "name": "pattern",      "data_type": "string", "default_value": "alternating", "description": "Pattern: continuous/alternating/melody" },
+        { "name": "on_ms",        "data_type": "usize",  "default_value": 1000,          "description": "On duration in ms" },
+        { "name": "off_ms",       "data_type": "usize",  "default_value": 1000,          "description": "Off duration in ms" }
+      ],
+      "wcet_us": 300, "bcet_us": 80, "typical_us": 150,
+      "stack_size_bytes": 4096, "static_mem_bytes": 4096,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-gain",
+      "uuid": "b2000001-0000-0000-0000-000000000015",
+      "name": "Gain",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "audio_in", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Audio input" }
+      ],
+      "output_ports": [
+        { "port_name": "audio_out", "data_type": "f32[]", "sample_size_bytes": 4, "description": "Amplified audio" }
+      ],
+      "config_params": [
+        { "name": "gain", "data_type": "f32", "default_value": 1.0, "description": "Amplification factor" }
+      ],
+      "wcet_us": 500, "bcet_us": 100, "typical_us": 300,
+      "stack_size_bytes": 4096, "static_mem_bytes": 1024,
+      "requires_fpu": true, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    },
+    {
+      "id": "mod-bt",
+      "uuid": "b2000001-0000-0000-0000-000000000016",
+      "name": "BTAudio",
+      "version": 1,
+      "input_ports": [
+        { "port_name": "bt_rx",    "data_type": "u8[]", "sample_size_bytes": 1, "description": "Received BT SCO audio" },
+        { "port_name": "tx_audio", "data_type": "u8[]", "sample_size_bytes": 1, "description": "Audio to transmit via BT" }
+      ],
+      "output_ports": [
+        { "port_name": "rx_audio", "data_type": "u8[]", "sample_size_bytes": 1, "description": "Decoded BT received audio" },
+        { "port_name": "bt_tx",   "data_type": "u8[]", "sample_size_bytes": 1, "description": "Encoded audio for BT" }
+      ],
+      "config_params": [
+        { "name": "profile",         "data_type": "string", "default_value": "HFP",  "description": "BT profile: HFP or A2DP" },
+        { "name": "sco_packet_size", "data_type": "usize",  "default_value": 60,     "description": "SCO packet payload size" },
+        { "name": "codec",           "data_type": "string", "default_value": "mSBC", "description": "BT codec: CVSD or mSBC" }
+      ],
+      "wcet_us": 500, "bcet_us": 100, "typical_us": 250,
+      "stack_size_bytes": 8192, "static_mem_bytes": 8192,
+      "requires_fpu": false, "requires_gpu": false,
+      "asil_level": "QM", "category": "Audio"
+    }
+  ],
+  "instances": [
+    {
+      "id": "i-mic1", "moduleId": "mod-mic", "moduleName": "MicCapture", "instance_id": 1,
+      "name": "Mic_Main", "x": 50, "y": 100,
+      "activation": "PERIODIC", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-mic2", "moduleId": "mod-mic2", "moduleName": "MicCapture", "instance_id": 2,
+      "name": "Mic_Secondary", "x": 50, "y": 200,
+      "activation": "PERIODIC", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-beam", "moduleId": "mod-beam", "moduleName": "BeamForming", "instance_id": 1,
+      "name": "BeamForm_HF", "x": 200, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "mic_0", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "mic_1", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "beam_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-aec", "moduleId": "mod-aec", "moduleName": "AEC", "instance_id": 1,
+      "name": "AEC_Main", "x": 350, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "mic_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "ref_in", "fifo_depth": 4, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "echo_free", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-nr", "moduleId": "mod-nr", "moduleName": "NoiseReduction", "instance_id": 1,
+      "name": "NR_Uplink", "x": 500, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-agc-ul", "moduleId": "mod-agc-ul", "moduleName": "AGC", "instance_id": 1,
+      "name": "AGC_Uplink", "x": 650, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-vad", "moduleId": "mod-vad", "moduleName": "VAD", "instance_id": 1,
+      "name": "VAD_Uplink", "x": 800, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 },
+        { "port_name": "vad_flag",  "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-src-ul", "moduleId": "mod-src-ul", "moduleName": "SampleRateConverter", "instance_id": 1,
+      "name": "SRC_48k_to_8k", "x": 950, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-amr-enc", "moduleId": "mod-amr", "moduleName": "AMRCodec", "instance_id": 1,
+      "name": "AMR_Encoder", "x": 1100, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "encoded_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-dtx", "moduleId": "mod-dtx", "moduleName": "DTX", "instance_id": 1,
+      "name": "DTX_TX", "x": 1250, "y": 150,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "vad_flag", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "tx_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "uplink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-jitter", "moduleId": "mod-jitter", "moduleName": "JitterBuffer", "instance_id": 1,
+      "name": "Jitter_RX", "x": 50, "y": 400,
+      "activation": "PERIODIC", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "packet_in", "fifo_depth": 8, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-amr-dec", "moduleId": "mod-amr-dec", "moduleName": "AMRCodec", "instance_id": 2,
+      "name": "AMR_Decoder", "x": 200, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "encoded_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-cng", "moduleId": "mod-cng", "moduleName": "CNG", "instance_id": 1,
+      "name": "CNG_Downlink", "x": 350, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "vad_flag", "fifo_depth": 2, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-src-dl", "moduleId": "mod-src-dl", "moduleName": "SampleRateConverter", "instance_id": 2,
+      "name": "SRC_8k_to_48k", "x": 500, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-agc-dl", "moduleId": "mod-agc-dl", "moduleName": "AGC", "instance_id": 2,
+      "name": "AGC_Downlink", "x": 650, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-eq", "moduleId": "mod-eq", "moduleName": "Equalizer", "instance_id": 1,
+      "name": "EQ_Voice", "x": 800, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-gain", "moduleId": "mod-gain", "moduleName": "Gain", "instance_id": 1,
+      "name": "Gain_Volume", "x": 950, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-lim", "moduleId": "mod-lim", "moduleName": "Limiter", "instance_id": 1,
+      "name": "Limiter_Out", "x": 1100, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-mixer", "moduleId": "mod-mixer", "moduleName": "Mixer", "instance_id": 1,
+      "name": "Mixer_DL", "x": 1250, "y": 400,
+      "activation": "DATA_DRIVEN", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "in_0", "fifo_depth": 2, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "in_1", "fifo_depth": 2, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "in_2", "fifo_depth": 2, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "in_3", "fifo_depth": 2, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [{ "port_name": "mix_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-spk", "moduleId": "mod-spk", "moduleName": "SpeakerOutput", "instance_id": 1,
+      "name": "Speaker_Main", "x": 1400, "y": 400,
+      "activation": "PERIODIC", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "audio_in", "fifo_depth": 4, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "ACTIVE"
+    },
+    {
+      "id": "i-ring", "moduleId": "mod-ring", "moduleName": "RingtoneGen", "instance_id": 1,
+      "name": "Ringtone", "x": 950, "y": 550,
+      "activation": "PERIODIC", "period_us": 20000, "min_interarrival_us": 0,
+      "input_configs": [],
+      "output_configs": [{ "port_name": "audio_out", "burst_size": 1, "suggested_min_depth": 2 }],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "downlink", "state": "INACTIVE"
+    },
+    {
+      "id": "i-bt", "moduleId": "mod-bt", "moduleName": "BTAudio", "instance_id": 1,
+      "name": "BT_HFP", "x": 50, "y": 550,
+      "activation": "PERIODIC", "period_us": 7500, "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "bt_rx",    "fifo_depth": 4, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" },
+        { "port_name": "tx_audio", "fifo_depth": 4, "mandatory": false, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "rx_audio", "burst_size": 1, "suggested_min_depth": 2 },
+        { "port_name": "bt_tx",   "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535, "preferred_core": 0, "affinity_group": "bluetooth", "state": "INACTIVE"
+    }
+  ],
+  "connections": [
+    { "id": "c-1",  "fromInstanceId": "i-mic1",    "fromPort": 0, "toInstanceId": "i-beam",    "toPort": 0, "doubleBuffer": false },
+    { "id": "c-2",  "fromInstanceId": "i-mic2",    "fromPort": 0, "toInstanceId": "i-beam",    "toPort": 1, "doubleBuffer": false },
+    { "id": "c-3",  "fromInstanceId": "i-beam",    "fromPort": 0, "toInstanceId": "i-aec",     "toPort": 0, "doubleBuffer": false },
+    { "id": "c-4",  "fromInstanceId": "i-aec",     "fromPort": 0, "toInstanceId": "i-nr",      "toPort": 0, "doubleBuffer": false },
+    { "id": "c-5",  "fromInstanceId": "i-nr",      "fromPort": 0, "toInstanceId": "i-agc-ul",  "toPort": 0, "doubleBuffer": false },
+    { "id": "c-6",  "fromInstanceId": "i-agc-ul",  "fromPort": 0, "toInstanceId": "i-vad",     "toPort": 0, "doubleBuffer": false },
+    { "id": "c-7",  "fromInstanceId": "i-vad",     "fromPort": 0, "toInstanceId": "i-src-ul",  "toPort": 0, "doubleBuffer": false },
+    { "id": "c-8",  "fromInstanceId": "i-src-ul",  "fromPort": 0, "toInstanceId": "i-amr-enc", "toPort": 0, "doubleBuffer": false },
+    { "id": "c-9",  "fromInstanceId": "i-amr-enc", "fromPort": 0, "toInstanceId": "i-dtx",     "toPort": 0, "doubleBuffer": false },
+    { "id": "c-10", "fromInstanceId": "i-vad",     "fromPort": 1, "toInstanceId": "i-dtx",     "toPort": 1, "doubleBuffer": false },
+
+    { "id": "c-20", "fromInstanceId": "i-jitter",  "fromPort": 0, "toInstanceId": "i-amr-dec", "toPort": 0, "doubleBuffer": false },
+    { "id": "c-21", "fromInstanceId": "i-amr-dec", "fromPort": 0, "toInstanceId": "i-cng",     "toPort": 0, "doubleBuffer": false },
+    { "id": "c-22", "fromInstanceId": "i-cng",     "fromPort": 0, "toInstanceId": "i-src-dl",  "toPort": 0, "doubleBuffer": false },
+    { "id": "c-23", "fromInstanceId": "i-src-dl",  "fromPort": 0, "toInstanceId": "i-agc-dl",  "toPort": 0, "doubleBuffer": false },
+    { "id": "c-24", "fromInstanceId": "i-agc-dl",  "fromPort": 0, "toInstanceId": "i-eq",      "toPort": 0, "doubleBuffer": false },
+    { "id": "c-25", "fromInstanceId": "i-eq",      "fromPort": 0, "toInstanceId": "i-gain",    "toPort": 0, "doubleBuffer": false },
+    { "id": "c-26", "fromInstanceId": "i-gain",    "fromPort": 0, "toInstanceId": "i-lim",     "toPort": 0, "doubleBuffer": false },
+    { "id": "c-27", "fromInstanceId": "i-lim",     "fromPort": 0, "toInstanceId": "i-mixer",   "toPort": 0, "doubleBuffer": false },
+    { "id": "c-28", "fromInstanceId": "i-mixer",   "fromPort": 0, "toInstanceId": "i-spk",     "toPort": 0, "doubleBuffer": false },
+
+    { "id": "c-30", "fromInstanceId": "i-lim",     "fromPort": 0, "toInstanceId": "i-aec",     "toPort": 1, "doubleBuffer": true },
+
+    { "id": "c-40", "fromInstanceId": "i-ring",    "fromPort": 0, "toInstanceId": "i-mixer",   "toPort": 1, "doubleBuffer": false },
+
+    { "id": "c-50", "fromInstanceId": "i-dtx",     "fromPort": 0, "toInstanceId": "i-bt",      "toPort": 1, "doubleBuffer": false },
+    { "id": "c-51", "fromInstanceId": "i-bt",      "fromPort": 0, "toInstanceId": "i-jitter",  "toPort": 0, "doubleBuffer": false }
+  ],
+  "useCases": [
+    {
+      "id": "uc-ringtone",
+      "name": "Ringtone",
+      "description": "Incoming call ringtone — RingtoneGen → Mixer → Speaker (no mic, no codec)",
+      "instanceIds": ["i-ring", "i-mixer", "i-lim", "i-spk"],
+      "active": false
+    },
+    {
+      "id": "uc-handsfree",
+      "name": "VoiceCall_HandsFree",
+      "description": "Full duplex hands-free call — dual mic beamforming + AEC + full UL/DL pipeline + loudspeaker",
+      "instanceIds": [
+        "i-mic1", "i-mic2", "i-beam", "i-aec", "i-nr", "i-agc-ul", "i-vad", "i-src-ul", "i-amr-enc", "i-dtx",
+        "i-jitter", "i-amr-dec", "i-cng", "i-src-dl", "i-agc-dl", "i-eq", "i-gain", "i-lim", "i-mixer", "i-spk"
+      ],
+      "active": false
+    },
+    {
+      "id": "uc-handset",
+      "name": "VoiceCall_Handset",
+      "description": "Handset call — single mic (no beamforming) + AEC + earpiece speaker, UL/DL pipeline",
+      "instanceIds": [
+        "i-mic1", "i-aec", "i-nr", "i-agc-ul", "i-vad", "i-src-ul", "i-amr-enc", "i-dtx",
+        "i-jitter", "i-amr-dec", "i-cng", "i-src-dl", "i-agc-dl", "i-eq", "i-gain", "i-lim", "i-mixer", "i-spk"
+      ],
+      "active": false
+    },
+    {
+      "id": "uc-bluetooth",
+      "name": "VoiceCall_Bluetooth",
+      "description": "Bluetooth HFP call — BT SCO interface replaces local mic/speaker, full codec pipeline via BT",
+      "instanceIds": [
+        "i-bt", "i-jitter", "i-amr-dec", "i-cng", "i-src-dl", "i-agc-dl", "i-eq", "i-gain", "i-lim", "i-mixer", "i-spk",
+        "i-mic1", "i-aec", "i-nr", "i-agc-ul", "i-vad", "i-src-ul", "i-amr-enc", "i-dtx"
+      ],
+      "active": false
+    }
+  ],
+  "nextInstanceCounters": {
+    "mod-mic": 1, "mod-mic2": 1, "mod-spk": 1, "mod-beam": 1, "mod-aec": 1,
+    "mod-nr": 1, "mod-agc-ul": 1, "mod-vad": 1, "mod-src-ul": 1, "mod-amr": 1,
+    "mod-dtx": 1, "mod-jitter": 1, "mod-amr-dec": 1, "mod-cng": 1, "mod-src-dl": 1,
+    "mod-agc-dl": 1, "mod-eq": 1, "mod-lim": 1, "mod-mixer": 1, "mod-ring": 1,
+    "mod-gain": 1, "mod-bt": 1
+  }
+}

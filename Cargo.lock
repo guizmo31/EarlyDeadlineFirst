@@ -438,6 +438,240 @@ dependencies = [
 ]
 
 [[package]]
+name = "edf-mod-aec"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-agc"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-amr-codec"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-beamforming"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-bt-audio"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-cng"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-down-sampling"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-dtx"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-equalizer"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-fir-filter"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-gain"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-jitter-buffer"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-lane-camera"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-lane-detection"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-lane-position"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-limiter"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-mic_capture"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-mixer"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-noise-reduction"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-path-planner"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-ringtone-gen"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-sample-rate-converter"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-speaker_output"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-steering-actuator"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-steering-controller"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "edf-mod-vad"
+version = "0.1.0"
+dependencies = [
+ "edf-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "edf-server"
 version = "0.1.0"
 dependencies = [
@@ -445,6 +679,7 @@ dependencies = [
  "actix-files",
  "actix-web",
  "edf-core",
+ "libloading",
  "serde",
  "serde_json",
 ]
@@ -762,6 +997,16 @@ name = "libc"
 version = "0.2.182"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6800badb6cb2082ffd7b6a67e6125bb39f18782f793520caee8cb8846be06112"
+
+[[package]]
+name = "libloading"
+version = "0.8.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7c4b02199fee7c5d21a5ae7d8cfa79a6ef5bb2fc834d6e9058e89c825efdc55"
+dependencies = [
+ "cfg-if",
+ "windows-link",
+]
 
 [[package]]
 name = "litemap"

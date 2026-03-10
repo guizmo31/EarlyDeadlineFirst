@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 Ivan LE HIN
+     Licensed under CC BY-NC-SA 4.0 — Non-commercial use only.
+     For commercial licensing, contact the author.
+     https://creativecommons.org/licenses/by-nc-sa/4.0/ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Library — EDF Modules</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/shared/nav.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Module Library</h1>
+        <nav id="tool-nav"></nav>
+        <script src="/shared/nav.js"></script>
+    </header>
+
+    <div id="app">
+        <!-- Left panel: module list -->
+        <aside id="module-list-panel">
+            <h2>Modules</h2>
+            <div id="filter-bar">
+                <input type="text" id="search-input" placeholder="Search modules...">
+                <select id="category-filter">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div id="module-list"></div>
+            <button id="btn-create-module" class="btn btn-primary">+ New Module</button>
+        </aside>
+
+        <!-- Right panel: module detail -->
+        <main id="module-detail">
+            <div id="detail-placeholder">
+                <p>Select a module from the list to view its details.</p>
+            </div>
+            <div id="detail-content" class="hidden">
+                <div id="detail-tabs">
+                    <button class="tab-btn active" data-tab="overview">Overview</button>
+                    <button class="tab-btn" data-tab="source">Source Code</button>
+                    <button class="tab-btn" data-tab="api">API Reference</button>
+                    <button class="tab-btn" data-tab="simulation">Simulation</button>
+                </div>
+
+                <div id="tab-overview" class="tab-content active">
+                    <div id="meta-header"></div>
+                    <div id="meta-ports"></div>
+                    <div id="meta-config"></div>
+                    <div id="meta-timing"></div>
+                    <div id="meta-resources"></div>
+                </div>
+
+                <div id="tab-source" class="tab-content">
+                    <div id="source-header">
+                        <span id="source-filename"></span>
+                        <div id="source-actions">
+                            <button id="btn-edit-source" class="btn btn-secondary btn-sm">Edit</button>
+                            <button id="btn-save-verify" class="btn btn-primary btn-sm hidden">Save &amp; Verify</button>
+                            <button id="btn-cancel-edit" class="btn btn-secondary btn-sm hidden">Cancel</button>
+                            <span id="verify-status" class="hidden"></span>
+                        </div>
+                    </div>
+                    <pre id="source-view"><code id="source-code" class="language-rust"></code></pre>
+                    <div id="verify-output" class="hidden"></div>
+                </div>
+
+                <div id="tab-api" class="tab-content">
+                    <div id="api-content"></div>
+                </div>
+
+                <div id="tab-simulation" class="tab-content">
+                    <div class="sim-toolbar">
+                        <button id="sim-init" class="btn btn-primary btn-sm">Init</button>
+                        <button id="sim-reset" class="btn btn-secondary btn-sm">Reset</button>
+                        <span id="sim-status" class="sim-status">Not initialized</span>
+                        <div class="sim-config-inline">
+                            <input id="sim-config" type="text" placeholder="{}" spellcheck="false">
+                            <button id="sim-configure" class="btn btn-primary btn-sm">Configure</button>
+                        </div>
+                    </div>
+                    <div class="sim-io-grid">
+                        <div class="sim-io-col">
+                            <div class="sim-io-header">Input</div>
+                            <div id="sim-inputs"></div>
+                        </div>
+                        <div class="sim-io-col">
+                            <div class="sim-io-header">Output</div>
+                            <div id="sim-outputs"></div>
+                        </div>
+                    </div>
+                    <div class="sim-exec-bar">
+                        <button id="sim-process" class="btn btn-primary btn-sm">Execute</button>
+                        <button id="sim-loop" class="btn btn-secondary btn-sm">Loop</button>
+                        <button id="sim-stop" class="btn btn-secondary btn-sm" disabled>Stop</button>
+                        <label class="sim-interval-label">
+                            <input id="sim-interval" type="number" value="200" min="10" max="5000"> ms
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Create new module -->
+    <div id="create-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-box modal-box-wide">
+            <h3 id="create-modal-title">Create New Module</h3>
+
+            <!-- Step 1: Choose method -->
+            <div id="create-step-choose" class="create-step">
+                <div class="create-method-grid">
+                    <button class="create-method-card" id="btn-method-ai">
+                        <div class="method-title">Create with AI</div>
+                        <div class="method-desc">Describe what you need and let AI generate the complete Rust module code</div>
+                    </button>
+                    <button class="create-method-card" id="btn-method-manual">
+                        <div class="method-title">Create Manually</div>
+                        <div class="method-desc">Define ports and parameters with a wizard to generate a ready-to-edit template</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2a: AI creation -->
+            <div id="create-step-ai" class="create-step hidden">
+                <div class="modal-field">
+                    <label for="ai-module-name">Module Name (PascalCase):</label>
+                    <input type="text" id="ai-module-name" placeholder="e.g. NoiseReduction">
+                </div>
+                <div class="modal-field">
+                    <label for="ai-module-category">Category:</label>
+                    <select id="ai-module-category">
+                        <option value="Audio">Audio</option>
+                        <option value="ADAS">ADAS</option>
+                        <option value="Signal Processing">Signal Processing</option>
+                        <option value="Control">Control</option>
+                        <option value="Sensor">Sensor</option>
+                        <option value="Communication">Communication</option>
+                        <option value="Custom">Custom</option>
+                    </select>
+                </div>
+                <div class="modal-field">
+                    <label for="ai-module-description">Description (used by AI to generate code):</label>
+                    <textarea id="ai-module-description" rows="3" placeholder="Describe what this module does..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button id="btn-ai-back" class="btn btn-secondary">Back</button>
+                    <button id="btn-ai-create" class="btn btn-primary">Create with AI</button>
+                </div>
+            </div>
+
+            <!-- Step 2b: Manual wizard -->
+            <div id="create-step-manual" class="create-step hidden">
+                <div class="wizard-row">
+                    <div class="modal-field">
+                        <label for="man-module-name">Module Name (PascalCase):</label>
+                        <input type="text" id="man-module-name" placeholder="e.g. NoiseReduction">
+                    </div>
+                    <div class="modal-field">
+                        <label for="man-module-category">Category:</label>
+                        <select id="man-module-category">
+                            <option value="Audio">Audio</option>
+                            <option value="ADAS">ADAS</option>
+                            <option value="Signal Processing">Signal Processing</option>
+                            <option value="Control">Control</option>
+                            <option value="Sensor">Sensor</option>
+                            <option value="Communication">Communication</option>
+                            <option value="Custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label for="man-module-description">Description:</label>
+                    <textarea id="man-module-description" rows="2" placeholder="Module description..."></textarea>
+                </div>
+                <div class="wizard-row">
+                    <div class="modal-field">
+                        <label for="man-asil">ASIL Level:</label>
+                        <select id="man-asil">
+                            <option value="QM">QM</option>
+                            <option value="ASIL-A">ASIL-A</option>
+                            <option value="ASIL-B">ASIL-B</option>
+                            <option value="ASIL-C">ASIL-C</option>
+                            <option value="ASIL-D">ASIL-D</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label for="man-scheduling">Scheduling Type:</label>
+                        <select id="man-scheduling">
+                            <option value="Periodic">Periodic</option>
+                            <option value="DataDriven">DataDriven</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Input Ports -->
+                <div class="ports-section">
+                    <div class="ports-header">
+                        <span class="section-title">Input Ports</span>
+                        <button class="btn btn-sm btn-secondary" id="btn-add-input">+ Add Input</button>
+                    </div>
+                    <div id="wizard-input-ports"></div>
+                </div>
+
+                <!-- Output Ports -->
+                <div class="ports-section">
+                    <div class="ports-header">
+                        <span class="section-title">Output Ports</span>
+                        <button class="btn btn-sm btn-secondary" id="btn-add-output">+ Add Output</button>
+                    </div>
+                    <div id="wizard-output-ports"></div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-man-back" class="btn btn-secondary">Back</button>
+                    <button id="btn-man-create" class="btn btn-primary">Create Module</button>
+                </div>
+            </div>
+
+            <div id="create-result" class="hidden"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

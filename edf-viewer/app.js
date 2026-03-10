@@ -59,10 +59,19 @@
     // DATA LOADING
     // ================================================================
 
-    async function loadData() {
-        // Load viewer-data.json
+    /** Try fetching from MCP server first, then fallback to edf-server. */
+    async function fetchWithFallback(mcpPath, edfPath) {
         try {
-            const resp = await fetch(`${MCP_HTTP}/files/viewer-data.json`);
+            const resp = await fetch(`${MCP_HTTP}/files/${mcpPath}`);
+            if (resp.ok) return resp;
+        } catch { /* MCP unavailable, try edf-server */ }
+        return fetch(`/api/topologies/${encodeURIComponent(edfPath || mcpPath)}`);
+    }
+
+    async function loadData() {
+        // Load viewer-data.json (try MCP, fallback to edf-server)
+        try {
+            const resp = await fetchWithFallback("viewer-data.json");
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             viewerData = await resp.json();
         } catch (err) {
@@ -70,13 +79,25 @@
             return;
         }
 
-        // Load topology.json (optional)
+        // Determine topology filename from viewer-data or localStorage
+        const topoFile = (viewerData && viewerData.topology_file)
+            || localStorage.getItem("edf-topology-file")
+            || "topology.json";
+
+        // Load topology (optional, try MCP then edf-server)
         try {
-            const resp = await fetch(`${MCP_HTTP}/files/topology.json`);
+            const resp = await fetchWithFallback(topoFile);
             if (resp.ok) {
                 topology = await resp.json();
             }
         } catch { /* topology is optional */ }
+
+        // Show topology context
+        const topoName = (topology && topology.name) || localStorage.getItem("edf-topology-name");
+        if (topoName) {
+            document.getElementById("topology-context").textContent = topoName;
+            localStorage.setItem("edf-topology-name", topoName);
+        }
 
         init();
     }
@@ -423,11 +444,39 @@
         const cm = result.chain_metrics || [];
         const misses = result.deadline_misses || [];
 
+        // Schedulability analysis
+        const saEl = document.getElementById("metrics-schedulability-content");
+        const sa = result.schedulability;
+        if (sa) {
+            const verdictColor = sa.verdict === "PASS" ? "#90be6d" :
+                sa.verdict === "FAIL" ? "#e94560" : "#f9c74f";
+            let saHtml = `${metricCard("Verdict", sa.verdict, sa.verdict === "PASS" ? "good" : sa.verdict === "FAIL" ? "bad" : "warn")}`;
+            saHtml += `${metricCard("Utilization", (sa.total_utilization * 100).toFixed(1) + "%",
+                sa.total_utilization <= sa.utilization_bound ? "good" : "bad")}`;
+            saHtml += `${metricCard("Bound", (sa.utilization_bound * 100).toFixed(1) + "%", "good")}`;
+            saHtml += `${metricCard("U_max", (sa.max_individual_utilization * 100).toFixed(1) + "%",
+                sa.max_individual_utilization <= 1.0 ? "good" : "bad")}`;
+            saHtml += `${metricCard("Dep. Cycle", sa.cycle_detected ? "YES" : "None",
+                sa.cycle_detected ? "bad" : "good")}`;
+            if (sa.details && sa.details.length > 0) {
+                saHtml += '<div style="margin-top:8px;font-size:0.8rem;color:#a0a0c0;">';
+                for (const d of sa.details) {
+                    saHtml += `<p style="margin:2px 0;">${esc(d)}</p>`;
+                }
+                saHtml += '</div>';
+            }
+            saEl.innerHTML = saHtml;
+        } else {
+            saEl.innerHTML = '<div style="color:#8899aa">No schedulability data available</div>';
+        }
+
         // Summary cards
         const summaryEl = document.getElementById("metrics-summary-content");
         const totalJobs = pm.reduce((s, p) => s + p.num_jobs, 0);
         const totalDone = pm.reduce((s, p) => s + p.num_completions, 0);
         const missCount = misses.length;
+        const overrunCount = (result.budget_overruns || []).length;
+        const degradedCount = (result.degraded_mode_events || []).length;
         const worstSlack = pm.filter(p => p.worst_slack_ms != null)
             .map(p => p.worst_slack_ms)
             .reduce((min, v) => Math.min(min, v), Infinity);
@@ -439,6 +488,7 @@
             ${metricCard("Total Jobs", totalJobs, "good")}
             ${metricCard("Completed", totalDone, totalDone === totalJobs ? "good" : "warn")}
             ${metricCard("Deadline Misses", missCount, missCount === 0 ? "good" : "bad")}
+            ${metricCard("WCET Overruns", overrunCount, overrunCount === 0 ? "good" : "bad")}
             ${metricCard("Worst Slack", worstSlack === Infinity ? "N/A" : worstSlack + "ms",
                 worstSlack > 0 ? "good" : worstSlack === 0 ? "warn" : "bad")}
             ${metricCard("Max Jitter", worstJitter + "ms",
@@ -501,6 +551,28 @@
         } else {
             missEl.innerHTML = misses.map(m =>
                 `<div class="miss-item">${esc(m.process_name)} missed deadline at ${m.deadline_ms}ms (${m.remaining_ms}ms remaining)</div>`
+            ).join("");
+        }
+
+        // Budget overruns
+        const overrunEl = document.getElementById("metrics-overruns-content");
+        const overruns = result.budget_overruns || [];
+        if (overruns.length === 0) {
+            overrunEl.innerHTML = '<div class="miss-none">No WCET budget overruns.</div>';
+        } else {
+            overrunEl.innerHTML = overruns.map(o =>
+                `<div class="miss-item">${esc(o.process_name)} overran budget at ${o.time_ms}ms (consumed ${o.consumed_ms}ms / budget ${o.budget_ms}ms)</div>`
+            ).join("");
+        }
+
+        // Degraded mode events
+        const degradedEl = document.getElementById("metrics-degraded-content");
+        const degraded = result.degraded_mode_events || [];
+        if (degraded.length === 0) {
+            degradedEl.innerHTML = '<div class="miss-none">No degraded mode events.</div>';
+        } else {
+            degradedEl.innerHTML = degraded.map(d =>
+                `<div class="miss-item">${esc(d.process_name)} dropped at ${d.time_ms}ms — ${esc(d.reason)}</div>`
             ).join("");
         }
     }

@@ -18,6 +18,7 @@ import { writeFile, readFile, mkdir, readdir, stat, unlink } from 'fs/promises';
 import { dirname, resolve, isAbsolute, extname, normalize } from 'path';
 import { fileURLToPath } from 'url';
 import { TopologyState } from './topology-state.js';
+import Anthropic from '@anthropic-ai/sdk';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(__dirname, '../..');
@@ -147,6 +148,150 @@ const httpServer = createServer(async (req, res) => {
         } catch (err) {
             res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: err.message }));
+        }
+        return;
+    }
+
+    // POST /generate-module — AI-powered Rust module generation
+    if (req.method === 'POST' && req.url === '/generate-module') {
+        try {
+            const body = JSON.parse(await readBody(req));
+            const { name, category, description } = body;
+            if (!name || !category || !description) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'name, category, and description are required' }));
+                return;
+            }
+
+            const apiKey = process.env.ANTHROPIC_API_KEY;
+            if (!apiKey) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'ANTHROPIC_API_KEY environment variable is not set. Set it before starting the MCP server.' }));
+                return;
+            }
+
+            const anthropic = new Anthropic({ apiKey });
+
+            const prompt = `You are a Rust developer creating an EDF (Earliest Deadline First) scheduler module.
+
+Generate a complete, compilable Rust module file for the following:
+- Module name: ${name} (struct will be ${name}Module)
+- Category: ${category}
+- Description: ${description}
+
+The module MUST implement the EdfModule trait from edf_core. Here is the trait definition:
+
+\`\`\`rust
+pub trait EdfModule {
+    fn init(&mut self);
+    fn process(&mut self, inputs: &[&[u8]], outputs: &mut [Vec<u8>]);
+    fn configure(&mut self, params: &serde_json::Value);
+    fn reset(&mut self);
+    fn metadata(&self) -> ModuleMetadata;
+}
+\`\`\`
+
+Available types from edf_core:
+\`\`\`rust
+pub struct ModuleMetadata {
+    pub name: String,
+    pub version: u32,
+    pub description: String,
+    pub category: String,
+    pub input_ports: Vec<PortDescriptor>,
+    pub output_ports: Vec<PortDescriptor>,
+    pub scheduling_type: SchedulingType,
+    pub timing: TimingInfo,
+    pub resources: ResourceInfo,
+    pub asil_level: AsilLevel,
+}
+pub struct PortDescriptor { pub port_name: String, pub data_type: String, pub sample_size_bytes: usize, pub description: String }
+pub struct TimingInfo { pub wcet_us: u64, pub bcet_us: u64, pub typical_us: u64 }
+pub struct ResourceInfo { pub stack_size_bytes: u64, pub static_mem_bytes: u64, pub requires_fpu: bool, pub requires_gpu: bool }
+pub enum SchedulingType { Periodic, DataDriven, Sporadic }
+pub enum AsilLevel { QM, AsilA, AsilB, AsilC, AsilD }
+\`\`\`
+
+Here is an example module (Gain) for reference:
+\`\`\`rust
+use edf_core::{
+    AsilLevel, EdfModule, ModuleMetadata, PortDescriptor, ResourceInfo, SchedulingType, TimingInfo,
+};
+
+pub struct GainModule {
+    gain: f32,
+    initialized: bool,
+}
+
+impl Default for GainModule {
+    fn default() -> Self {
+        Self { gain: 1.0, initialized: false }
+    }
+}
+
+impl EdfModule for GainModule {
+    fn init(&mut self) { self.gain = 1.0; self.initialized = true; }
+    fn process(&mut self, inputs: &[&[u8]], outputs: &mut [Vec<u8>]) {
+        if inputs.is_empty() || outputs.is_empty() { return; }
+        let input = inputs[0];
+        let output = &mut outputs[0];
+        output.clear();
+        for chunk in input.chunks_exact(4) {
+            let sample = f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
+            let amplified = sample * self.gain;
+            output.extend_from_slice(&amplified.to_le_bytes());
+        }
+    }
+    fn configure(&mut self, params: &serde_json::Value) {
+        if let Some(g) = params.get("gain").and_then(|v| v.as_f64()) { self.gain = g as f32; }
+    }
+    fn reset(&mut self) { self.gain = 1.0; self.initialized = false; }
+    fn metadata(&self) -> ModuleMetadata {
+        ModuleMetadata {
+            name: "Gain".to_string(),
+            version: 1,
+            description: "Audio gain module".to_string(),
+            category: "Audio".to_string(),
+            input_ports: vec![PortDescriptor { port_name: "audio_in".to_string(), data_type: "f32[]".to_string(), sample_size_bytes: 4, description: "Raw PCM audio samples".to_string() }],
+            output_ports: vec![PortDescriptor { port_name: "audio_out".to_string(), data_type: "f32[]".to_string(), sample_size_bytes: 4, description: "Amplified audio samples".to_string() }],
+            scheduling_type: SchedulingType::Periodic,
+            timing: TimingInfo { wcet_us: 200, bcet_us: 50, typical_us: 120 },
+            resources: ResourceInfo { stack_size_bytes: 2048, static_mem_bytes: 512, requires_fpu: true, requires_gpu: false },
+            asil_level: AsilLevel::QM,
+        }
+    }
+}
+\`\`\`
+
+Rules:
+1. Start with the copyright header: // Copyright (c) 2026 Ivan LE HIN\\n// Licensed under CC BY-NC-SA 4.0
+2. Use realistic port names, data types, timing, and resource values based on the module's purpose
+3. Implement REAL processing logic in process() — not just a copy of input to output
+4. Include proper configure() support with relevant parameters
+5. Include unit tests in a #[cfg(test)] mod tests block
+6. Data is exchanged as raw bytes (&[u8]) — use from_le_bytes/to_le_bytes for typed data
+7. Output ONLY the Rust code, no markdown fences, no explanations`;
+
+            console.error(`[MCP] Generating module "${name}" with AI...`);
+            const message = await anthropic.messages.create({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 4096,
+                messages: [{ role: 'user', content: prompt }],
+            });
+
+            const generatedCode = message.content
+                .filter(b => b.type === 'text')
+                .map(b => b.text)
+                .join('');
+
+            console.error(`[MCP] AI generated ${generatedCode.length} chars for "${name}"`);
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ source: generatedCode }));
+        } catch (err) {
+            console.error(`[MCP] AI generation error:`, err.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: `AI generation failed: ${err.message}` }));
         }
         return;
     }
@@ -363,6 +508,62 @@ server.tool(
     'List all ModuleClass templates. Returns id, name, version, input_ports, output_ports, wcet_us, asil_level, etc.',
     {},
     async () => mcpExec('listModules')
+);
+
+server.tool(
+    'import_rust_module',
+    'Import a module from the Rust Module Library (edf-modules crate). Fetches module metadata from /api/modules and creates a ModuleClass in the topology with accurate ports, timing, resources, and ASIL level.',
+    {
+        name: z.string().describe('Name of the Rust module to import (e.g. "Gain", "FirFilter"). Use list_rust_modules to discover available modules.'),
+    },
+    async ({ name }) => {
+        try {
+            const resp = await fetch(`http://localhost:8080/api/modules/${encodeURIComponent(name)}`);
+            if (!resp.ok) return { content: [{ type: 'text', text: `Module "${name}" not found in Rust library.` }] };
+            const { metadata } = await resp.json();
+            const result = await mcpExec('addModule', {
+                name: metadata.name,
+                version: metadata.version,
+                input_ports: metadata.input_ports.map(p => ({
+                    port_name: p.port_name,
+                    data_type: p.data_type,
+                    sample_size_bytes: p.sample_size_bytes,
+                })),
+                output_ports: metadata.output_ports.map(p => ({
+                    port_name: p.port_name,
+                    data_type: p.data_type,
+                    sample_size_bytes: p.sample_size_bytes,
+                })),
+                wcet_us: metadata.timing.wcet_us,
+                bcet_us: metadata.timing.bcet_us,
+                typical_us: metadata.timing.typical_us,
+                stack_size_bytes: metadata.resources.stack_size_bytes,
+                static_mem_bytes: metadata.resources.static_mem_bytes,
+                requires_fpu: metadata.resources.requires_fpu,
+                requires_gpu: metadata.resources.requires_gpu,
+                asil_level: metadata.asil_level,
+            });
+            return result;
+        } catch (err) {
+            return { content: [{ type: 'text', text: `Import failed: ${err.message}` }] };
+        }
+    }
+);
+
+server.tool(
+    'list_rust_modules',
+    'List all available Rust modules from the edf-modules library with their metadata (name, category, description, ports, timing, ASIL level). Use this to discover modules before importing with import_rust_module.',
+    {},
+    async () => {
+        try {
+            const resp = await fetch('http://localhost:8080/api/modules');
+            if (!resp.ok) return { content: [{ type: 'text', text: 'Failed to fetch Rust module library.' }] };
+            const modules = await resp.json();
+            return { content: [{ type: 'text', text: JSON.stringify(modules, null, 2) }] };
+        } catch (err) {
+            return { content: [{ type: 'text', text: `Error: ${err.message}` }] };
+        }
+    }
 );
 
 // ----- Instance Operations -----

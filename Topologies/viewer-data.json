@@ -1,0 +1,6176 @@
+{
+  "config": {
+    "fixed_partitioning": true,
+    "num_cores": 2,
+    "processes": [
+      {
+        "color": "#e94560",
+        "cpu_time_ms": 2,
+        "name": "Camera_Front",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#00b4d8",
+        "cpu_time_ms": 8,
+        "dependencies": [
+          "Camera_Front"
+        ],
+        "name": "LaneDetect_Main",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#90be6d",
+        "cpu_time_ms": 1,
+        "name": "IMU_Main",
+        "period_ms": 5,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#f9c74f",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "IMU_Main"
+        ],
+        "name": "VehState_Est",
+        "period_ms": 5,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#f3722c",
+        "cpu_time_ms": 3,
+        "dependencies": [
+          "LaneDetect_Main",
+          "VehState_Est"
+        ],
+        "name": "LaneFusion_Main",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#43aa8b",
+        "cpu_time_ms": 2,
+        "dependencies": [
+          "LaneFusion_Main",
+          "VehState_Est"
+        ],
+        "name": "LKA_Planner",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#577590",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "LKA_Planner",
+          "VehState_Est"
+        ],
+        "name": "LatCtrl_Main",
+        "period_ms": 10,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#f8961e",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "LatCtrl_Main"
+        ],
+        "name": "EPS_Driver",
+        "period_ms": 10,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#9b5de5",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "LKA_Planner"
+        ],
+        "name": "HMI_Display",
+        "period_ms": 100,
+        "pinned_core": null,
+        "priority": 0
+      }
+    ],
+    "simulation_duration_ms": 1000,
+    "tick_period_ms": 1,
+    "use_cases": [
+      {
+        "active": true,
+        "name": "LKA_Active",
+        "process_names": [
+          "Camera_Front",
+          "LaneDetect_Main",
+          "IMU_Main",
+          "VehState_Est",
+          "LaneFusion_Main",
+          "LKA_Planner",
+          "LatCtrl_Main",
+          "EPS_Driver",
+          "HMI_Display"
+        ]
+      }
+    ]
+  },
+  "result": {
+    "_processes": [
+      {
+        "color": "#e94560",
+        "cpu_time_ms": 2,
+        "dependencies": [],
+        "name": "Camera_Front",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#00b4d8",
+        "cpu_time_ms": 8,
+        "dependencies": [
+          "Camera_Front"
+        ],
+        "name": "LaneDetect_Main",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#90be6d",
+        "cpu_time_ms": 1,
+        "dependencies": [],
+        "name": "IMU_Main",
+        "period_ms": 5,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#f9c74f",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "IMU_Main"
+        ],
+        "name": "VehState_Est",
+        "period_ms": 5,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#f3722c",
+        "cpu_time_ms": 3,
+        "dependencies": [
+          "LaneDetect_Main",
+          "VehState_Est"
+        ],
+        "name": "LaneFusion_Main",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#43aa8b",
+        "cpu_time_ms": 2,
+        "dependencies": [
+          "LaneFusion_Main",
+          "VehState_Est"
+        ],
+        "name": "LKA_Planner",
+        "period_ms": 33,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#577590",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "LKA_Planner",
+          "VehState_Est"
+        ],
+        "name": "LatCtrl_Main",
+        "period_ms": 10,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#f8961e",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "LatCtrl_Main"
+        ],
+        "name": "EPS_Driver",
+        "period_ms": 10,
+        "pinned_core": null,
+        "priority": 0
+      },
+      {
+        "color": "#9b5de5",
+        "cpu_time_ms": 1,
+        "dependencies": [
+          "LKA_Planner"
+        ],
+        "name": "HMI_Display",
+        "period_ms": 100,
+        "pinned_core": null,
+        "priority": 0
+      }
+    ],
+    "budget_overruns": [],
+    "chain_metrics": [
+      {
+        "avg_e2e_ms": 4.154639175257732,
+        "best_e2e_ms": 4,
+        "chain": [
+          "IMU_Main",
+          "VehState_Est",
+          "LatCtrl_Main",
+          "EPS_Driver"
+        ],
+        "worst_e2e_ms": 8
+      },
+      {
+        "avg_e2e_ms": 92.2,
+        "best_e2e_ms": 87,
+        "chain": [
+          "IMU_Main",
+          "VehState_Est",
+          "LKA_Planner",
+          "HMI_Display"
+        ],
+        "worst_e2e_ms": 96
+      },
+      {
+        "avg_e2e_ms": 4.154639175257732,
+        "best_e2e_ms": 4,
+        "chain": [
+          "IMU_Main",
+          "VehState_Est",
+          "LKA_Planner",
+          "LatCtrl_Main",
+          "EPS_Driver"
+        ],
+        "worst_e2e_ms": 8
+      },
+      {
+        "avg_e2e_ms": 92.2,
+        "best_e2e_ms": 87,
+        "chain": [
+          "IMU_Main",
+          "VehState_Est",
+          "LaneFusion_Main",
+          "LKA_Planner",
+          "HMI_Display"
+        ],
+        "worst_e2e_ms": 96
+      },
+      {
+        "avg_e2e_ms": 4.154639175257732,
+        "best_e2e_ms": 4,
+        "chain": [
+          "IMU_Main",
+          "VehState_Est",
+          "LaneFusion_Main",
+          "LKA_Planner",
+          "LatCtrl_Main",
+          "EPS_Driver"
+        ],
+        "worst_e2e_ms": 8
+      },
+      {
+        "avg_e2e_ms": 96.7,
+        "best_e2e_ms": 94,
+        "chain": [
+          "Camera_Front",
+          "LaneDetect_Main",
+          "LaneFusion_Main",
+          "LKA_Planner",
+          "HMI_Display"
+        ],
+        "worst_e2e_ms": 100
+      },
+      {
+        "avg_e2e_ms": 20.17525773195876,
+        "best_e2e_ms": 4,
+        "chain": [
+          "Camera_Front",
+          "LaneDetect_Main",
+          "LaneFusion_Main",
+          "LKA_Planner",
+          "LatCtrl_Main",
+          "EPS_Driver"
+        ],
+        "worst_e2e_ms": 36
+      }
+    ],
+    "cpu_utilization": 1.064545454545455,
+    "deadline_misses": [
+      {
+        "deadline_ms": 10,
+        "process_name": "LatCtrl_Main",
+        "remaining_ms": 1
+      },
+      {
+        "deadline_ms": 10,
+        "process_name": "EPS_Driver",
+        "remaining_ms": 1
+      },
+      {
+        "deadline_ms": 20,
+        "process_name": "LatCtrl_Main",
+        "remaining_ms": 1
+      },
+      {
+        "deadline_ms": 20,
+        "process_name": "EPS_Driver",
+        "remaining_ms": 1
+      },
+      {
+        "deadline_ms": 30,
+        "process_name": "LatCtrl_Main",
+        "remaining_ms": 1
+      },
+      {
+        "deadline_ms": 30,
+        "process_name": "EPS_Driver",
+        "remaining_ms": 1
+      }
+    ],
+    "degraded_mode_events": [],
+    "num_cores": 2,
+    "process_metrics": [
+      {
+        "avg_response_ms": 2.032258064516129,
+        "best_response_ms": 2,
+        "best_slack_ms": 31,
+        "cpu_time_ms": 2,
+        "jitter_ms": 1,
+        "name": "Camera_Front",
+        "num_completions": 31,
+        "num_jobs": 31,
+        "period_ms": 33,
+        "worst_response_ms": 3,
+        "worst_slack_ms": 30
+      },
+      {
+        "avg_response_ms": 20.5,
+        "best_response_ms": 14,
+        "best_slack_ms": 19,
+        "cpu_time_ms": 8,
+        "jitter_ms": 8,
+        "name": "LaneDetect_Main",
+        "num_completions": 30,
+        "num_jobs": 31,
+        "period_ms": 33,
+        "worst_response_ms": 22,
+        "worst_slack_ms": 11
+      },
+      {
+        "avg_response_ms": 1,
+        "best_response_ms": 1,
+        "best_slack_ms": 4,
+        "cpu_time_ms": 1,
+        "jitter_ms": 0,
+        "name": "IMU_Main",
+        "num_completions": 200,
+        "num_jobs": 200,
+        "period_ms": 5,
+        "worst_response_ms": 1,
+        "worst_slack_ms": 4
+      },
+      {
+        "avg_response_ms": 2,
+        "best_response_ms": 2,
+        "best_slack_ms": 3,
+        "cpu_time_ms": 1,
+        "jitter_ms": 0,
+        "name": "VehState_Est",
+        "num_completions": 200,
+        "num_jobs": 200,
+        "period_ms": 5,
+        "worst_response_ms": 2,
+        "worst_slack_ms": 3
+      },
+      {
+        "avg_response_ms": 27.733333333333334,
+        "best_response_ms": 25,
+        "best_slack_ms": 8,
+        "cpu_time_ms": 3,
+        "jitter_ms": 6,
+        "name": "LaneFusion_Main",
+        "num_completions": 30,
+        "num_jobs": 31,
+        "period_ms": 33,
+        "worst_response_ms": 31,
+        "worst_slack_ms": 2
+      },
+      {
+        "avg_response_ms": 29.733333333333334,
+        "best_response_ms": 27,
+        "best_slack_ms": 6,
+        "cpu_time_ms": 2,
+        "jitter_ms": 6,
+        "name": "LKA_Planner",
+        "num_completions": 30,
+        "num_jobs": 31,
+        "period_ms": 33,
+        "worst_response_ms": 33,
+        "worst_slack_ms": 0
+      },
+      {
+        "avg_response_ms": 3.0927835051546393,
+        "best_response_ms": 3,
+        "best_slack_ms": 7,
+        "cpu_time_ms": 1,
+        "jitter_ms": 2,
+        "name": "LatCtrl_Main",
+        "num_completions": 97,
+        "num_jobs": 100,
+        "period_ms": 10,
+        "worst_response_ms": 5,
+        "worst_slack_ms": 5
+      },
+      {
+        "avg_response_ms": 4.154639175257732,
+        "best_response_ms": 4,
+        "best_slack_ms": 6,
+        "cpu_time_ms": 1,
+        "jitter_ms": 4,
+        "name": "EPS_Driver",
+        "num_completions": 97,
+        "num_jobs": 100,
+        "period_ms": 10,
+        "worst_response_ms": 8,
+        "worst_slack_ms": 2
+      },
+      {
+        "avg_response_ms": 92.2,
+        "best_response_ms": 87,
+        "best_slack_ms": 13,
+        "cpu_time_ms": 1,
+        "jitter_ms": 9,
+        "name": "HMI_Display",
+        "num_completions": 10,
+        "num_jobs": 10,
+        "period_ms": 100,
+        "worst_response_ms": 96,
+        "worst_slack_ms": 4
+      }
+    ],
+    "schedulability": {
+      "cycle_detected": false,
+      "cycle_path": [],
+      "details": [
+        "Multi-core EDF (2 cores): U = 1.0645 ≤ 1.7576 (Baruah-Baker bound) — schedulable."
+      ],
+      "max_individual_utilization": 0.24242424242424243,
+      "total_utilization": 1.064545454545455,
+      "utilization_bound": 1.7575757575757576,
+      "verdict": "PASS"
+    },
+    "schedule": [
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 0
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 0
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 1
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 2
+      },
+      {
+        "core": 1,
+        "duration_ms": 28,
+        "process_name": "IDLE",
+        "time_ms": 2
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 5
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 6
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 7
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 10
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 11
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 12
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 14
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 15
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 16
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 17
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 20
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 21
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 22
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 25
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 26
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 27
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 30
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 30
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 31
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 32
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 32
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 33
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 33
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 34
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 35
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 35
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 36
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 37
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 40
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 41
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 42
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 43
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 44
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 45
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 46
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 47
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 50
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 51
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 52
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 53
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 54
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 55
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 56
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 57
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 60
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 60
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 61
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 62
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 62
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 63
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 64
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 65
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 66
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 66
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 67
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 68
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 68
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 70
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 71
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 72
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 73
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 74
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 75
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 76
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 77
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 80
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 81
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 82
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 83
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 84
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 85
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 86
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 87
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 88
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 90
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 91
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 92
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 93
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 93
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 94
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 95
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 95
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 96
+      },
+      {
+        "core": 1,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 96
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 97
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 99
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 100
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 101
+      },
+      {
+        "core": 1,
+        "duration_ms": 28,
+        "process_name": "IDLE",
+        "time_ms": 101
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 102
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 103
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 104
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 105
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 106
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 107
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 110
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 111
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 112
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 113
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 114
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 115
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 116
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 117
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 120
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 121
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 122
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 123
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 124
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 125
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 126
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 127
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 129
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 129
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 130
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 131
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 131
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 132
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 132
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 133
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 134
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 134
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 135
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 136
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 137
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 140
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 141
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 142
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 143
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 144
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 145
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 146
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 147
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 150
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 151
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 152
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 153
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 154
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 155
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 156
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 157
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 159
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 159
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 160
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 161
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 161
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 162
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 163
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 164
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 165
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 165
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 166
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 167
+      },
+      {
+        "core": 1,
+        "duration_ms": 23,
+        "process_name": "IDLE",
+        "time_ms": 167
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 170
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 171
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 172
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 173
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 174
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 175
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 176
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 177
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 180
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 181
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 182
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 183
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 184
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 185
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 186
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 187
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 190
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 190
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 191
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 192
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 192
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 193
+      },
+      {
+        "core": 1,
+        "duration_ms": 5,
+        "process_name": "IDLE",
+        "time_ms": 193
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 194
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 195
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 196
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 197
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 198
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 200
+      },
+      {
+        "core": 1,
+        "duration_ms": 29,
+        "process_name": "IDLE",
+        "time_ms": 200
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 201
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 202
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 203
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 204
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 205
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 206
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 207
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 210
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 211
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 212
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 213
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 214
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 215
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 216
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 217
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 220
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 221
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 222
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 223
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 224
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 225
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 226
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 227
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 229
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 229
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 230
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 231
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 231
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 232
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 233
+      },
+      {
+        "core": 1,
+        "duration_ms": 26,
+        "process_name": "IDLE",
+        "time_ms": 233
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 234
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 235
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 236
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 237
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 240
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 241
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 242
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 243
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 244
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 245
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 246
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 247
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 250
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 251
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 252
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 253
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 254
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 255
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 256
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 257
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 259
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 259
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 260
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 261
+      },
+      {
+        "core": 1,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 261
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 262
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 263
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 264
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 264
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 265
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 266
+      },
+      {
+        "core": 1,
+        "duration_ms": 24,
+        "process_name": "IDLE",
+        "time_ms": 266
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 267
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 270
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 271
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 272
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 273
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 274
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 275
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 276
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 277
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 280
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 281
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 282
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 283
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 284
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 285
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 286
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 287
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 290
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 290
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 291
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 292
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 292
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 293
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 293
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 294
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 295
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 296
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 297
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 297
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 299
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 299
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 300
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 301
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 302
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 303
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 304
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 305
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 306
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 307
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 310
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 311
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 312
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 313
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 314
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 315
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 316
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 317
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 319
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 320
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 321
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 322
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 324
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 324
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 325
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 326
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 326
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 327
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 328
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 330
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 330
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 331
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 332
+      },
+      {
+        "core": 1,
+        "duration_ms": 27,
+        "process_name": "IDLE",
+        "time_ms": 332
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 333
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 334
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 335
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 336
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 337
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 340
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 341
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 342
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 343
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 344
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 345
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 346
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 347
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 350
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 351
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 352
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 353
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 354
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 355
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 356
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 357
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 359
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 359
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 360
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 361
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 361
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 362
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 363
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 363
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 364
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 365
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 365
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 366
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 367
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 370
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 371
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 372
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 373
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 374
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 375
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 376
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 377
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 380
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 381
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 382
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 383
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 384
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 385
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 386
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 387
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 390
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 390
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 391
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 392
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 392
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 393
+      },
+      {
+        "core": 1,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 393
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 394
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 395
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 396
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 396
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 397
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 398
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 398
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 400
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 401
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 402
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 403
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 404
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 405
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 406
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 407
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 410
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 411
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 412
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 413
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 414
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 415
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 416
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 417
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 418
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 420
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 421
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 422
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 423
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 423
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 424
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 425
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 425
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 426
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 427
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 429
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 430
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 431
+      },
+      {
+        "core": 1,
+        "duration_ms": 28,
+        "process_name": "IDLE",
+        "time_ms": 431
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 432
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 433
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 434
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 435
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 436
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 437
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 440
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 441
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 442
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 443
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 444
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 445
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 446
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 447
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 450
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 451
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 452
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 453
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 454
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 455
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 456
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 457
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 459
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 459
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 460
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 461
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 461
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 462
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 462
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 463
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 464
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 464
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 465
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 466
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 467
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 470
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 471
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 472
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 473
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 474
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 475
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 476
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 477
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 480
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 481
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 482
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 483
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 484
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 485
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 486
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 487
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 489
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 489
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 490
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 491
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 491
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 492
+      },
+      {
+        "core": 1,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 492
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 493
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 494
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 495
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 495
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 496
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 497
+      },
+      {
+        "core": 1,
+        "duration_ms": 23,
+        "process_name": "IDLE",
+        "time_ms": 497
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 500
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 501
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 502
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 503
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 504
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 505
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 506
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 507
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 510
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 511
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 512
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 513
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 514
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 515
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 516
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 517
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 520
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 520
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 521
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 522
+      },
+      {
+        "core": 1,
+        "duration_ms": 6,
+        "process_name": "IDLE",
+        "time_ms": 522
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 523
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 524
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 525
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 526
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 527
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 528
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 530
+      },
+      {
+        "core": 1,
+        "duration_ms": 29,
+        "process_name": "IDLE",
+        "time_ms": 530
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 531
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 532
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 533
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 534
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 535
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 536
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 537
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 540
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 541
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 542
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 543
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 544
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 545
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 546
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 547
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 550
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 551
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 552
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 553
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 554
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 555
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 556
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 557
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 559
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 559
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 560
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 561
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 561
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 562
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 563
+      },
+      {
+        "core": 1,
+        "duration_ms": 26,
+        "process_name": "IDLE",
+        "time_ms": 563
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 564
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 565
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 566
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 567
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 570
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 571
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 572
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 573
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 574
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 575
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 576
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 577
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 580
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 581
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 582
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 583
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 584
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 585
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 586
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 587
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 589
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 589
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 590
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 591
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 591
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 592
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 592
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 593
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 594
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 594
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 595
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 596
+      },
+      {
+        "core": 1,
+        "duration_ms": 24,
+        "process_name": "IDLE",
+        "time_ms": 596
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 597
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 600
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 601
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 602
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 603
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 604
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 605
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 606
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 607
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 610
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 611
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 612
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 613
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 614
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 615
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 616
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 617
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 620
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 620
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 621
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 622
+      },
+      {
+        "core": 1,
+        "duration_ms": 5,
+        "process_name": "IDLE",
+        "time_ms": 622
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 623
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 624
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 625
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 626
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 627
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 627
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 629
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 629
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 630
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 631
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 632
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 633
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 634
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 635
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 636
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 637
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 640
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 641
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 642
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 643
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 644
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 645
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 646
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 647
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 649
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 650
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 651
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 652
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 654
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 654
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 655
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 656
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 656
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 657
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 658
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 660
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 660
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 661
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 662
+      },
+      {
+        "core": 1,
+        "duration_ms": 27,
+        "process_name": "IDLE",
+        "time_ms": 662
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 663
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 664
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 665
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 666
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 667
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 670
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 671
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 672
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 673
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 674
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 675
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 676
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 677
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 680
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 681
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 682
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 683
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 684
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 685
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 686
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 687
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 689
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 689
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 690
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 691
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 691
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 692
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 692
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 693
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 693
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 694
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 695
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 695
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 696
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 697
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 700
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 701
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 702
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 703
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 704
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 705
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 706
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 707
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 710
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 711
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 712
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 713
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 714
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 715
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 716
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 717
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 720
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 720
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 721
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 722
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 722
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 723
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 724
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 725
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 726
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 726
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 727
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 728
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 728
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 730
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 731
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 732
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 733
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 734
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 735
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 736
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 737
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 740
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 741
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 742
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 743
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 744
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 745
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 746
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 747
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 748
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 750
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 751
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 752
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 753
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 753
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 754
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 755
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 755
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 756
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 757
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 759
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 760
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 761
+      },
+      {
+        "core": 1,
+        "duration_ms": 28,
+        "process_name": "IDLE",
+        "time_ms": 761
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 762
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 763
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 764
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 765
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 766
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 767
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 770
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 771
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 772
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 773
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 774
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 775
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 776
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 777
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 780
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 781
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 782
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 783
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 784
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 785
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 786
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 787
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 789
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 789
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 790
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 791
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 791
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 792
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 792
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 793
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 794
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 794
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 795
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 796
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 797
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 800
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 801
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 802
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 803
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 804
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 805
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 806
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 807
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 810
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 811
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 812
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 813
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 814
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 815
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 816
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 817
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 819
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 819
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 820
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 821
+      },
+      {
+        "core": 1,
+        "duration_ms": 4,
+        "process_name": "IDLE",
+        "time_ms": 821
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 822
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 823
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 824
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 825
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 825
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 826
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 827
+      },
+      {
+        "core": 1,
+        "duration_ms": 23,
+        "process_name": "IDLE",
+        "time_ms": 827
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 830
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 831
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 832
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 833
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 834
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 835
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 836
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 837
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 840
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 841
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 842
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 843
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 844
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 845
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 846
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 847
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 850
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 850
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 851
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 852
+      },
+      {
+        "core": 1,
+        "duration_ms": 6,
+        "process_name": "IDLE",
+        "time_ms": 852
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 853
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 854
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 855
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 856
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 857
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 858
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 860
+      },
+      {
+        "core": 1,
+        "duration_ms": 29,
+        "process_name": "IDLE",
+        "time_ms": 860
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 861
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 862
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 863
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 864
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 865
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 866
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 867
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 870
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 871
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 872
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 873
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 874
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 875
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 876
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 877
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 880
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 881
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 882
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 883
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 884
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 885
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 886
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 887
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 889
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 889
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 890
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 891
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 891
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 892
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 892
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 893
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 894
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 894
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 895
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 896
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 897
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 900
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 901
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 902
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 903
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 904
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 905
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 906
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 907
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 910
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 911
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 912
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 913
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 914
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 915
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 916
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 917
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 919
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 919
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 920
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 921
+      },
+      {
+        "core": 1,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 921
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 922
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 923
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 924
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 924
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 925
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 926
+      },
+      {
+        "core": 1,
+        "duration_ms": 24,
+        "process_name": "IDLE",
+        "time_ms": 926
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 927
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 930
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 931
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 932
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 933
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 934
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 935
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 936
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 937
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 940
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 941
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 942
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 943
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 944
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 945
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 946
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 947
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 950
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 950
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 951
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 952
+      },
+      {
+        "core": 1,
+        "duration_ms": 5,
+        "process_name": "IDLE",
+        "time_ms": 952
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 953
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IDLE",
+        "time_ms": 954
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 955
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 956
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 957
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 957
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 959
+      },
+      {
+        "core": 1,
+        "duration_ms": 25,
+        "process_name": "IDLE",
+        "time_ms": 959
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 960
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 961
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 962
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 963
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 964
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 965
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 966
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 967
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 970
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 971
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 972
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 973
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 974
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 975
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 976
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 977
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 979
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 980
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 981
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "LaneFusion_Main",
+        "time_ms": 982
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 984
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "LKA_Planner",
+        "time_ms": 984
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 985
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 986
+      },
+      {
+        "core": 1,
+        "duration_ms": 1,
+        "process_name": "HMI_Display",
+        "time_ms": 986
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 987
+      },
+      {
+        "core": 1,
+        "duration_ms": 3,
+        "process_name": "IDLE",
+        "time_ms": 987
+      },
+      {
+        "core": 0,
+        "duration_ms": 2,
+        "process_name": "IDLE",
+        "time_ms": 988
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 990
+      },
+      {
+        "core": 1,
+        "duration_ms": 2,
+        "process_name": "Camera_Front",
+        "time_ms": 990
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 991
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LatCtrl_Main",
+        "time_ms": 992
+      },
+      {
+        "core": 1,
+        "duration_ms": 8,
+        "process_name": "IDLE",
+        "time_ms": 992
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "EPS_Driver",
+        "time_ms": 993
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 994
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "IMU_Main",
+        "time_ms": 995
+      },
+      {
+        "core": 0,
+        "duration_ms": 1,
+        "process_name": "VehState_Est",
+        "time_ms": 996
+      },
+      {
+        "core": 0,
+        "duration_ms": 3,
+        "process_name": "LaneDetect_Main",
+        "time_ms": 997
+      }
+    ],
+    "total_duration_ms": 1000
+  },
+  "scheduling_file": null,
+  "topology_file": "LKA-Topology.json"
+}

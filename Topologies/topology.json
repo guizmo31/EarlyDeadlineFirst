@@ -1,0 +1,185 @@
+{
+  "version": "2.0",
+  "name": "topology-NoiseReduction-v1",
+  "savedAt": "2026-03-04T21:12:11.746Z",
+  "modules": [
+    {
+      "id": "id-20",
+      "uuid": "5c1062cc-2dee-4aca-9796-22fe47c4aafb",
+      "name": "gain",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "gain_in",
+          "data_type": "PCM",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "gain_out",
+          "data_type": "PCM",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 500,
+      "bcet_us": 100,
+      "typical_us": 300,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    },
+    {
+      "id": "id-21",
+      "uuid": "e32ac69f-779c-499d-b7af-63203f69d9ef",
+      "name": "NoiseReduction",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "NR_in",
+          "data_type": "PCM",
+          "sample_size_bytes": 0
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "NR_out",
+          "data_type": "PCM",
+          "sample_size_bytes": 0
+        }
+      ],
+      "wcet_us": 2000,
+      "bcet_us": 100,
+      "typical_us": 300,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 1024,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "QM"
+    }
+  ],
+  "instances": [
+    {
+      "id": "id-22",
+      "moduleId": "id-20",
+      "moduleName": "gain",
+      "instance_id": 1,
+      "name": "gain/1",
+      "x": 57.59999999999999,
+      "y": 69.75999755859374,
+      "activation": "PERIODIC",
+      "period_us": 10000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "gain_in",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "gain_out",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "id-23",
+      "moduleId": "id-21",
+      "moduleName": "NoiseReduction",
+      "instance_id": 1,
+      "name": "NoiseReduction/1",
+      "x": 267.99999999999994,
+      "y": 71.35999755859373,
+      "activation": "PERIODIC",
+      "period_us": 30000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "NR_in",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "NR_out",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "id-24",
+      "moduleId": "id-20",
+      "moduleName": "gain",
+      "instance_id": 2,
+      "name": "gain/2",
+      "x": 495.99999999999983,
+      "y": 72.95999755859373,
+      "activation": "PERIODIC",
+      "period_us": 10000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        {
+          "port_name": "gain_in",
+          "fifo_depth": 4,
+          "mandatory": true,
+          "mode": "ALL",
+          "consume_count": 1,
+          "overflow_policy": "DROP_OLDEST"
+        }
+      ],
+      "output_configs": [
+        {
+          "port_name": "gain_out",
+          "burst_size": 1,
+          "suggested_min_depth": 2
+        }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "",
+      "state": "ACTIVE"
+    }
+  ],
+  "connections": [
+    {
+      "id": "id-25",
+      "fromInstanceId": "id-22",
+      "fromPort": 0,
+      "toInstanceId": "id-23",
+      "toPort": 0
+    },
+    {
+      "id": "id-26",
+      "fromInstanceId": "id-23",
+      "fromPort": 0,
+      "toInstanceId": "id-24",
+      "toPort": 0
+    }
+  ],
+  "useCases": [],
+  "nextInstanceCounters": {
+    "id-20": 2,
+    "id-21": 1
+  }
+}

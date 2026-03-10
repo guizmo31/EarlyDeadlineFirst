@@ -18,6 +18,7 @@
         useCases: [],         // Use Case groups (renamed from pipelines)
         nextInstanceCounters: {},  // moduleId -> counter
         topologyName: '',          // user-chosen name for the topology
+        topologyVersion: '1.0',    // user-chosen version string
         zoom: 1,
         panX: 0,
         panY: 0,
@@ -29,17 +30,130 @@
     const genId = () => `id-${idCounter++}`;
     const genUUID = () => crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+    function topologyFilename(name, version) {
+        const clean = (name || 'topology').replace(/\s+/g, '-');
+        return `topology_${clean}_v${version || '1.0'}.json`;
+    }
+
+    function schedulingFilename(name, version) {
+        const clean = (name || 'config').replace(/\s+/g, '-');
+        return `scheduling_${clean}_v${version || '1.0'}.json`;
+    }
+
+    function updateTopologyBadge(name, filename) {
+        const el = document.getElementById('topology-context');
+        if (el) el.textContent = name ? `${name} v${state.topologyVersion}` : '';
+        if (name) {
+            localStorage.setItem('edf-topology-name', name);
+            localStorage.setItem('edf-topology-version', state.topologyVersion);
+            localStorage.removeItem('edf-has-scheduler-config');
+            localStorage.removeItem('edf-scheduling-file');
+            if (filename) localStorage.setItem('edf-topology-file', filename);
+            if (window.edfNavRefresh) window.edfNavRefresh();
+        }
+    }
+
+    // Auto-load last topology from server on page load
+    async function autoLoadLastTopology() {
+        const savedFile = localStorage.getItem('edf-topology-file');
+        const savedName = localStorage.getItem('edf-topology-name');
+        if (!savedFile) {
+            if (savedName) updateTopologyBadge(savedName);
+            return;
+        }
+        try {
+            const resp = await fetch(`/api/topologies/${encodeURIComponent(savedFile)}`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            loadTopology(data);
+            showToast(`Restored: ${savedName || savedFile}`);
+        } catch (err) {
+            console.warn('[AutoLoad] Could not restore topology:', err.message);
+            if (savedName) updateTopologyBadge(savedName);
+        }
+    }
+
     // ----- DOM refs -----
     const $moduleList = document.getElementById('module-list');
     const $canvas = document.getElementById('canvas');
     const $viewport = document.getElementById('canvas-viewport');
     const $svg = document.getElementById('connections-svg');
+    const $scrollArea = document.getElementById('canvas-scroll-area');
+    const CANVAS_BASE_SIZE = 10000;
     const $props = document.getElementById('properties-content');
     const $ctxMenu = document.getElementById('context-menu');
 
     // ----- Default modules -----
     function initDefaults() {
         // No defaults — user creates modules from scratch
+    }
+
+    // ============================================================
+    // IMPORT FROM RUST MODULE LIBRARY
+    // ============================================================
+    async function importFromModuleLibrary() {
+        try {
+            const resp = await fetch('/api/modules');
+            if (!resp.ok) throw new Error('Server returned ' + resp.status);
+            const rustModules = await resp.json();
+
+            if (rustModules.length === 0) {
+                alert('No Rust modules available in the library.');
+                return;
+            }
+
+            // Filter out modules already in builder
+            const existingNames = new Set(state.modules.map(m => m.name));
+            const available = rustModules.filter(m => !existingNames.has(m.name));
+
+            if (available.length === 0) {
+                alert('All Rust modules are already imported.');
+                return;
+            }
+
+            // Simple selection dialog
+            const names = available.map(m => m.name + ' (' + m.category + ')');
+            const choice = prompt(
+                'Import Rust Module:\n\n' +
+                available.map((m, i) => (i + 1) + '. ' + m.name + ' — ' + m.category).join('\n') +
+                '\n\nEnter number(s) separated by commas, or "all":');
+            if (!choice) return;
+
+            let selected;
+            if (choice.trim().toLowerCase() === 'all') {
+                selected = available;
+            } else {
+                const indices = choice.split(',').map(s => parseInt(s.trim(), 10) - 1);
+                selected = indices.filter(i => i >= 0 && i < available.length).map(i => available[i]);
+            }
+
+            for (const meta of selected) {
+                addModule({
+                    name: meta.name,
+                    version: meta.version,
+                    input_ports: meta.input_ports.map(p => ({
+                        port_name: p.port_name,
+                        data_type: p.data_type,
+                        sample_size_bytes: p.sample_size_bytes,
+                    })),
+                    output_ports: meta.output_ports.map(p => ({
+                        port_name: p.port_name,
+                        data_type: p.data_type,
+                        sample_size_bytes: p.sample_size_bytes,
+                    })),
+                    wcet_us: meta.timing.wcet_us,
+                    bcet_us: meta.timing.bcet_us,
+                    typical_us: meta.timing.typical_us,
+                    stack_size_bytes: meta.resources.stack_size_bytes,
+                    static_mem_bytes: meta.resources.static_mem_bytes,
+                    requires_fpu: meta.resources.requires_fpu,
+                    requires_gpu: meta.resources.requires_gpu,
+                    asil_level: meta.asil_level,
+                });
+            }
+        } catch (err) {
+            alert('Failed to import modules: ' + err.message);
+        }
     }
 
     // ============================================================
@@ -181,7 +295,7 @@
         editingModuleId = null;
     }
 
-    document.getElementById('btn-open-create-modal').addEventListener('click', () => openCreateModuleModal(null));
+    document.getElementById('btn-import-rust-module').addEventListener('click', importFromModuleLibrary);
     document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
     $modalOverlay.addEventListener('click', (e) => { if (e.target === $modalOverlay) closeModal(); });
     document.addEventListener('keydown', (e) => {
@@ -238,39 +352,72 @@
         createInstance(mod, x, y);
     });
 
-    // Zoom
+    // Zoom (Ctrl+wheel) — regular wheel scrolls natively (pan)
     $viewport.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.05 : 0.05;
-        state.zoom = Math.max(0.2, Math.min(3, state.zoom + delta));
-        applyTransform();
+        if (e.ctrlKey) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.05 : 0.05;
+            // Zoom towards cursor position
+            const rect = $viewport.getBoundingClientRect();
+            const mx = e.clientX - rect.left + $viewport.scrollLeft;
+            const my = e.clientY - rect.top + $viewport.scrollTop;
+            const oldZoom = state.zoom;
+            state.zoom = Math.max(0.2, Math.min(3, state.zoom + delta));
+            // Adjust scroll to keep point under cursor stable
+            const ratio = state.zoom / oldZoom;
+            $viewport.scrollLeft = mx * ratio - (e.clientX - rect.left);
+            $viewport.scrollTop = my * ratio - (e.clientY - rect.top);
+            applyTransform();
+        }
+        // else: native scroll (pan) — do not preventDefault
     }, { passive: false });
+
+    // Sync panX/panY from scroll position (used by coordinate calculations)
+    $viewport.addEventListener('scroll', () => {
+        state.panX = -$viewport.scrollLeft;
+        state.panY = -$viewport.scrollTop;
+    });
 
     document.getElementById('btn-zoom-in').addEventListener('click', () => { state.zoom = Math.min(3, state.zoom + 0.1); applyTransform(); });
     document.getElementById('btn-zoom-out').addEventListener('click', () => { state.zoom = Math.max(0.2, state.zoom - 0.1); applyTransform(); });
-    document.getElementById('btn-zoom-reset').addEventListener('click', () => { state.zoom = 1; state.panX = 0; state.panY = 0; applyTransform(); });
+    document.getElementById('btn-zoom-reset').addEventListener('click', () => {
+        state.zoom = 1;
+        $viewport.scrollLeft = 0;
+        $viewport.scrollTop = 0;
+        state.panX = 0;
+        state.panY = 0;
+        applyTransform();
+    });
 
     function applyTransform() {
-        $canvas.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-        $svg.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
-        $svg.style.transformOrigin = '0 0';
+        // Set scroll area dimensions to match zoomed canvas size (for scrollbar range)
+        const sz = CANVAS_BASE_SIZE * state.zoom;
+        $scrollArea.style.width = sz + 'px';
+        $scrollArea.style.height = sz + 'px';
+        // Scale canvas and SVG (no translate — scroll handles panning)
+        $canvas.style.transform = `scale(${state.zoom})`;
+        $svg.style.transform = `scale(${state.zoom})`;
+        // Sync panX/panY from scroll position
+        state.panX = -$viewport.scrollLeft;
+        state.panY = -$viewport.scrollTop;
     }
 
     // Pan with middle mouse button or Ctrl+drag
-    let isPanning = false, panStartX, panStartY;
+    let isPanning = false, panStartX, panStartY, scrollStartX, scrollStartY;
     $viewport.addEventListener('mousedown', (e) => {
         if (e.button === 1 || (e.button === 0 && e.ctrlKey && !e.target.closest('.instance-node') && !e.target.closest('.usecase-group'))) {
             isPanning = true;
-            panStartX = e.clientX - state.panX;
-            panStartY = e.clientY - state.panY;
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+            scrollStartX = $viewport.scrollLeft;
+            scrollStartY = $viewport.scrollTop;
             e.preventDefault();
         }
     });
     window.addEventListener('mousemove', (e) => {
         if (isPanning) {
-            state.panX = e.clientX - panStartX;
-            state.panY = e.clientY - panStartY;
-            applyTransform();
+            $viewport.scrollLeft = scrollStartX - (e.clientX - panStartX);
+            $viewport.scrollTop = scrollStartY - (e.clientY - panStartY);
         }
     });
     window.addEventListener('mouseup', () => {
@@ -584,8 +731,8 @@
         const dot = portEl.querySelector('.port-dot');
         const dotRect = dot.getBoundingClientRect();
         const svgRect = $svg.getBoundingClientRect();
-        const startXpx = (dotRect.left + dotRect.width / 2 - svgRect.left - state.panX) / state.zoom;
-        const startYpx = (dotRect.top + dotRect.height / 2 - svgRect.top - state.panY) / state.zoom;
+        const startXpx = (dotRect.left + dotRect.width / 2 - svgRect.left) / state.zoom;
+        const startYpx = (dotRect.top + dotRect.height / 2 - svgRect.top) / state.zoom;
 
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('stroke', 'var(--link-color)');
@@ -598,8 +745,8 @@
         tempLink = { path, startX: startXpx, startY: startYpx, fromInstanceId: instId, fromPort: portIndex };
 
         const onMove = (ev) => {
-            const ex = (ev.clientX - svgRect.left - state.panX) / state.zoom;
-            const ey = (ev.clientY - svgRect.top - state.panY) / state.zoom;
+            const ex = (ev.clientX - svgRect.left) / state.zoom;
+            const ey = (ev.clientY - svgRect.top) / state.zoom;
             path.setAttribute('d', bezierPath(startXpx, startYpx, ex, ey));
         };
 
@@ -753,10 +900,10 @@
         const fr = fromDot.getBoundingClientRect();
         const tr = toDot.getBoundingClientRect();
         return {
-            x1: (fr.left + fr.width / 2 - svgRect.left - state.panX) / state.zoom,
-            y1: (fr.top + fr.height / 2 - svgRect.top - state.panY) / state.zoom,
-            x2: (tr.left + tr.width / 2 - svgRect.left - state.panX) / state.zoom,
-            y2: (tr.top + tr.height / 2 - svgRect.top - state.panY) / state.zoom,
+            x1: (fr.left + fr.width / 2 - svgRect.left) / state.zoom,
+            y1: (fr.top + fr.height / 2 - svgRect.top) / state.zoom,
+            x2: (tr.left + tr.width / 2 - svgRect.left) / state.zoom,
+            y2: (tr.top + tr.height / 2 - svgRect.top) / state.zoom,
         };
     }
 
@@ -1308,17 +1455,22 @@
     const MCP_HTTP = 'http://localhost:6590';
 
     document.getElementById('btn-save-topology').addEventListener('click', async () => {
-        const defaultName = state.topologyName || 'topology';
+        const defaultName = state.topologyName || 'MyTopology';
         const name = prompt('Topology name:', defaultName);
-        if (name === null) return; // cancelled
-        const trimmed = name.trim() || 'topology';
+        if (name === null) return;
+        const trimmed = name.trim() || 'MyTopology';
+        const version = prompt('Version:', state.topologyVersion || '1.0');
+        if (version === null) return;
+        const trimmedVersion = version.trim() || '1.0';
         state.topologyName = trimmed;
-
-        const filename = trimmed.endsWith('.json') ? trimmed : trimmed + '.json';
+        state.topologyVersion = trimmedVersion;
+        const filename = topologyFilename(trimmed, trimmedVersion);
+        updateTopologyBadge(trimmed, filename);
 
         const data = {
-            version: '2.0',
+            format_version: '2.0',
             name: trimmed,
+            topology_version: trimmedVersion,
             savedAt: new Date().toISOString(),
             modules: state.modules,
             instances: state.instances,
@@ -1337,7 +1489,7 @@
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             showToast(`Topology saved as "${filename}"`);
         } catch (err) {
-            console.warn('[Save] HTTP save failed, falling back to download:', err.message);
+            console.warn('[Save] MCP save failed, falling back to download:', err.message);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1345,8 +1497,16 @@
             a.download = filename;
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Topology downloaded (server unavailable)');
+            showToast('Topology downloaded (MCP unavailable)');
         }
+        // Also save to edf-server for auto-restore
+        try {
+            await fetch(`/api/topologies/${encodeURIComponent(filename)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: json,
+            });
+        } catch (e) { /* best effort */ }
     });
 
     const $loadOverlay = document.getElementById('load-modal-overlay');
@@ -1360,9 +1520,10 @@
             const resp = await fetch(`${MCP_HTTP}/files/`);
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const data = await resp.json();
-            // Filter: keep only topology files (have "version" field pattern), exclude edf-config, viewer-data
+            // Keep topology files (topology_*.json prefix or legacy names)
             cachedTopologyFiles = data.files.filter(f =>
                 f.name.endsWith('.json') &&
+                !f.name.startsWith('scheduling_') &&
                 !f.name.startsWith('edf-config') &&
                 !f.name.startsWith('viewer-data')
             );
@@ -1408,6 +1569,8 @@
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const data = await resp.json();
             loadTopology(data);
+            // Remember this file for auto-restore
+            localStorage.setItem('edf-topology-file', filename);
             $loadOverlay.classList.add('hidden');
             showToast(`Loaded: ${filename}`);
         } catch (err) {
@@ -1441,6 +1604,8 @@
             try {
                 const data = JSON.parse(ev.target.result);
                 loadTopology(data);
+                // Remember filename for auto-restore
+                localStorage.setItem('edf-topology-file', file.name);
             } catch (err) {
                 alert('Import error: ' + err.message);
             }
@@ -1510,9 +1675,12 @@
 
     function loadTopology(data) {
         // Auto-migrate old format
-        if (data.version !== '2.0') data = migrateV1(data);
+        const fmtVer = data.format_version || data.version;
+        if (fmtVer !== '2.0') data = migrateV1(data);
 
         state.topologyName = data.name || '';
+        state.topologyVersion = data.topology_version || '1.0';
+        updateTopologyBadge(state.topologyName);
 
         $canvas.innerHTML = '';
         $svg.innerHTML = '';
@@ -1595,94 +1763,21 @@
         const fixedPartitioning = document.getElementById('edf-fixed-part').checked;
         const chainConstraints = document.getElementById('edf-chain-constraints').checked;
 
-        // Build processes from instances (not pipelines)
-        const processes = state.instances.map(inst => {
-            const mod = state.modules.find(m => m.id === inst.moduleId);
-            const wcet_us = mod ? mod.wcet_us : 0;
-            const period_us = inst.activation === 'PERIODIC' ? inst.period_us :
-                              inst.activation === 'SPORADIC' ? inst.min_interarrival_us : 10000;
-
-            const proc = {
-                name: inst.name,
-                period_ms: Math.max(1, Math.round(period_us / 1000)),
-                cpu_time_ms: Math.max(1, Math.round(wcet_us / 1000)),
-                priority: 0,
-                pinned_core: null,
-            };
-
-            if (chainConstraints) {
-                // Find upstream instances via connections
-                const incomingConns = state.connections.filter(c => c.toInstanceId === inst.id);
-                const deps = incomingConns
-                    .map(c => {
-                        const fromInst = state.instances.find(i => i.id === c.fromInstanceId);
-                        return fromInst ? fromInst.name : null;
-                    })
-                    .filter(Boolean);
-                if (deps.length > 0) proc.dependencies = deps;
-
-                // Collect double-buffered dependencies
-                const dbDeps = incomingConns
-                    .filter(c => c.doubleBuffer)
-                    .map(c => {
-                        const fromInst = state.instances.find(i => i.id === c.fromInstanceId);
-                        return fromInst ? fromInst.name : null;
-                    })
-                    .filter(Boolean);
-                if (dbDeps.length > 0) proc.double_buffer_deps = dbDeps;
-            }
-
-            return proc;
-        });
-
-        // Build use_cases array: each use case maps to instance names
-        const use_cases = state.useCases.map(uc => ({
-            name: uc.name,
-            active: uc.active,
-            process_names: uc.instanceIds
-                .map(iid => state.instances.find(i => i.id === iid))
-                .filter(Boolean)
-                .map(i => i.name),
-        }));
-
-        const edfConfig = {
-            tick_period_ms: tickPeriod,
-            simulation_duration_ms: simDuration,
-            num_cores: numCores,
-            fixed_partitioning: fixedPartitioning,
-            processes,
-            use_cases,
+        // Ensure topology is saved so the scheduler can load it
+        const topoFile = localStorage.getItem('edf-topology-file') || topologyFilename(state.topologyName, state.topologyVersion);
+        const topoData = {
+            format_version: '2.0',
+            name: state.topologyName || 'topology',
+            topology_version: state.topologyVersion,
+            savedAt: new Date().toISOString(),
+            modules: state.modules,
+            instances: state.instances,
+            connections: state.connections,
+            useCases: state.useCases,
+            nextInstanceCounters: state.nextInstanceCounters,
         };
-
-        const json = JSON.stringify(edfConfig, null, 2);
-
-        // Save EDF config to shared directory via HTTP
-        const saveName = document.getElementById('edf-save-path').value.trim() || 'edf-config.json';
-        // Extract just the filename (strip any path prefix like "Topologies/")
-        const filename = saveName.split('/').pop();
         try {
-            await fetch(`${MCP_HTTP}/files/${encodeURIComponent(filename)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: json,
-            });
-        } catch (err) {
-            console.warn('[EDF] HTTP save failed:', err.message);
-        }
-
-        // Also save the current topology as topology.json so the viewer can load it
-        try {
-            const topoData = {
-                version: '2.0',
-                name: state.topologyName || 'topology',
-                savedAt: new Date().toISOString(),
-                modules: state.modules,
-                instances: state.instances,
-                connections: state.connections,
-                useCases: state.useCases,
-                nextInstanceCounters: state.nextInstanceCounters,
-            };
-            await fetch(`${MCP_HTTP}/files/topology.json`, {
+            await fetch(`/api/topologies/${encodeURIComponent(topoFile)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(topoData, null, 2),
@@ -1690,14 +1785,23 @@
         } catch (err) {
             console.warn('[EDF] Topology save failed:', err.message);
         }
+        // Also save to MCP (best effort)
+        fetch(`${MCP_HTTP}/files/${encodeURIComponent(topoFile)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(topoData, null, 2),
+        }).catch(() => {});
 
-        // Send config to MCP server in-memory for the simulator to fetch via /edf-config
-        if (window._mcpSendEdfConfig) {
-            window._mcpSendEdfConfig(edfConfig);
-        }
-
-        // Open the EDF simulator in a new tab with autoload
-        window.open('http://localhost:8080/simulator/?autoload=http://localhost:6590/edf-config', '_blank');
+        // Open the scheduler with topology reference + initial scheduling params
+        const params = new URLSearchParams({
+            topology: topoFile,
+            tick: tickPeriod,
+            duration: simDuration,
+            cores: numCores,
+            fixed: fixedPartitioning ? '1' : '0',
+            chains: chainConstraints ? '1' : '0',
+        });
+        window.open(`/scheduler/?${params.toString()}`, '_blank');
 
         $edfOverlay.classList.add('hidden');
     });
@@ -1857,5 +1961,6 @@
     // ============================================================
     initDefaults();
     applyTransform();
+    autoLoadLastTopology();
 
 })();

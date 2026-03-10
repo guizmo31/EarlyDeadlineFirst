@@ -1,0 +1,411 @@
+{
+  "version": "2.0",
+  "name": "LKA-Pipeline",
+  "description": "Lane Keeping Assist — full perception-to-actuation pipeline using dynamic ADAS modules",
+  "category": "ADAS",
+  "savedAt": "2026-03-08T12:00:00.000Z",
+  "modules": [
+    {
+      "id": "mod-1",
+      "uuid": "a1000001-0000-0000-0000-000000000001",
+      "name": "LaneCamera",
+      "version": 1,
+      "input_ports": [],
+      "output_ports": [
+        {
+          "port_name": "image_out",
+          "data_type": "u8[]",
+          "sample_size_bytes": 1,
+          "description": "Raw grayscale image frame (width×height u8 pixels) + 16-byte metadata trailer"
+        }
+      ],
+      "config_params": [
+        { "name": "width",       "data_type": "usize", "default_value": 640,  "description": "Image width in pixels" },
+        { "name": "height",      "data_type": "usize", "default_value": 480,  "description": "Image height in pixels" },
+        { "name": "exposure_ms", "data_type": "f32",   "default_value": 10.0, "description": "Camera exposure time in milliseconds" }
+      ],
+      "wcet_us": 5000,
+      "bcet_us": 2000,
+      "typical_us": 3500,
+      "stack_size_bytes": 16384,
+      "static_mem_bytes": 614400,
+      "requires_fpu": false,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B",
+      "category": "ADAS"
+    },
+    {
+      "id": "mod-2",
+      "uuid": "a1000001-0000-0000-0000-000000000002",
+      "name": "LaneDetection",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "image_in",
+          "data_type": "u8[]",
+          "sample_size_bytes": 1,
+          "description": "Grayscale image frame from LaneCamera"
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "lane_coeffs",
+          "data_type": "f32[]",
+          "sample_size_bytes": 4,
+          "description": "Lane polynomial coefficients: [left_a, left_b, left_c, right_a, right_b, right_c]"
+        }
+      ],
+      "config_params": [
+        { "name": "image_width",  "data_type": "usize", "default_value": 640, "description": "Expected input image width" },
+        { "name": "image_height", "data_type": "usize", "default_value": 480, "description": "Expected input image height" },
+        { "name": "threshold",    "data_type": "u8",    "default_value": 150, "description": "Minimum pixel intensity for lane marking" }
+      ],
+      "wcet_us": 8000,
+      "bcet_us": 3000,
+      "typical_us": 5500,
+      "stack_size_bytes": 32768,
+      "static_mem_bytes": 307200,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B",
+      "category": "ADAS"
+    },
+    {
+      "id": "mod-3",
+      "uuid": "a1000001-0000-0000-0000-000000000003",
+      "name": "LanePosition",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "lane_coeffs",
+          "data_type": "f32[]",
+          "sample_size_bytes": 4,
+          "description": "Lane polynomial coefficients from LaneDetection (6 × f32 LE)"
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "position_out",
+          "data_type": "f32[]",
+          "sample_size_bytes": 4,
+          "description": "Vehicle lane position: [lateral_offset_m, heading_angle_rad]"
+        }
+      ],
+      "config_params": [
+        { "name": "lane_width_m",     "data_type": "f32", "default_value": 3.7,   "description": "Standard lane width in meters" },
+        { "name": "pixels_per_meter", "data_type": "f32", "default_value": 100.0, "description": "Camera calibration: pixels per meter" }
+      ],
+      "wcet_us": 500,
+      "bcet_us": 100,
+      "typical_us": 250,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 512,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B",
+      "category": "ADAS"
+    },
+    {
+      "id": "mod-4",
+      "uuid": "a1000001-0000-0000-0000-000000000004",
+      "name": "PathPlanner",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "position_in",
+          "data_type": "f32[]",
+          "sample_size_bytes": 4,
+          "description": "Vehicle lane position from LanePosition: [lateral_offset_m, heading_angle_rad]"
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "steer_angle_out",
+          "data_type": "f32",
+          "sample_size_bytes": 4,
+          "description": "Desired steering angle in radians (positive = steer right)"
+        }
+      ],
+      "config_params": [
+        { "name": "kp_lateral",    "data_type": "f32", "default_value": 2.0,  "description": "Proportional gain on lateral offset" },
+        { "name": "kd_heading",    "data_type": "f32", "default_value": 1.5,  "description": "Derivative gain on heading angle" },
+        { "name": "max_steer_rad", "data_type": "f32", "default_value": 0.35, "description": "Maximum steering angle limit (~20°)" },
+        { "name": "lookahead_m",   "data_type": "f32", "default_value": 15.0, "description": "Look-ahead distance in meters" }
+      ],
+      "wcet_us": 1000,
+      "bcet_us": 200,
+      "typical_us": 500,
+      "stack_size_bytes": 8192,
+      "static_mem_bytes": 2048,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B",
+      "category": "ADAS"
+    },
+    {
+      "id": "mod-5",
+      "uuid": "a1000001-0000-0000-0000-000000000005",
+      "name": "SteeringController",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "steer_angle_in",
+          "data_type": "f32",
+          "sample_size_bytes": 4,
+          "description": "Desired steering angle from PathPlanner (radians)"
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "torque_out",
+          "data_type": "f32[]",
+          "sample_size_bytes": 4,
+          "description": "Steering output: [torque_nm, current_angle_rad]"
+        }
+      ],
+      "config_params": [
+        { "name": "kp",             "data_type": "f32", "default_value": 15.0, "description": "Proportional gain" },
+        { "name": "ki",             "data_type": "f32", "default_value": 0.5,  "description": "Integral gain" },
+        { "name": "kd",             "data_type": "f32", "default_value": 2.0,  "description": "Derivative gain" },
+        { "name": "max_torque_nm",  "data_type": "f32", "default_value": 5.0,  "description": "Maximum steering torque in Nm" },
+        { "name": "dt_s",           "data_type": "f32", "default_value": 0.01, "description": "Control loop period (100 Hz)" }
+      ],
+      "wcet_us": 200,
+      "bcet_us": 50,
+      "typical_us": 100,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 256,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B",
+      "category": "ADAS"
+    },
+    {
+      "id": "mod-6",
+      "uuid": "a1000001-0000-0000-0000-000000000006",
+      "name": "SteeringActuator",
+      "version": 1,
+      "input_ports": [
+        {
+          "port_name": "torque_in",
+          "data_type": "f32[]",
+          "sample_size_bytes": 4,
+          "description": "Steering output from SteeringController: [torque_nm, current_angle_rad]"
+        }
+      ],
+      "output_ports": [
+        {
+          "port_name": "actuator_cmd",
+          "data_type": "mixed",
+          "sample_size_bytes": 6,
+          "description": "EPS command: f32 PWM duty + u8 direction + u8 fault flag"
+        }
+      ],
+      "config_params": [
+        { "name": "max_torque_nm",       "data_type": "f32", "default_value": 5.0,  "description": "Maximum actuator torque in Nm" },
+        { "name": "rate_limit_nm_per_s", "data_type": "f32", "default_value": 50.0, "description": "Max torque rate of change in Nm/s" },
+        { "name": "dt_s",               "data_type": "f32", "default_value": 0.01, "description": "Control loop period in seconds" }
+      ],
+      "wcet_us": 150,
+      "bcet_us": 30,
+      "typical_us": 80,
+      "stack_size_bytes": 4096,
+      "static_mem_bytes": 256,
+      "requires_fpu": true,
+      "requires_gpu": false,
+      "asil_level": "ASIL-B",
+      "category": "ADAS"
+    }
+  ],
+  "instances": [
+    {
+      "id": "inst-1",
+      "moduleId": "mod-1",
+      "moduleName": "LaneCamera",
+      "instance_id": 1,
+      "name": "Camera_Front",
+      "x": 80,
+      "y": 150,
+      "activation": "PERIODIC",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [],
+      "output_configs": [
+        { "port_name": "image_out", "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "perception",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "inst-2",
+      "moduleId": "mod-2",
+      "moduleName": "LaneDetection",
+      "instance_id": 1,
+      "name": "LaneDetect_Main",
+      "x": 330,
+      "y": 150,
+      "activation": "DATA_DRIVEN",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "image_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "lane_coeffs", "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "perception",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "inst-3",
+      "moduleId": "mod-3",
+      "moduleName": "LanePosition",
+      "instance_id": 1,
+      "name": "LanePos_Est",
+      "x": 580,
+      "y": 150,
+      "activation": "DATA_DRIVEN",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "lane_coeffs", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "position_out", "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "perception",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "inst-4",
+      "moduleId": "mod-4",
+      "moduleName": "PathPlanner",
+      "instance_id": 1,
+      "name": "LKA_PathPlan",
+      "x": 830,
+      "y": 150,
+      "activation": "DATA_DRIVEN",
+      "period_us": 33333,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "position_in", "fifo_depth": 2, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "steer_angle_out", "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 0,
+      "affinity_group": "control",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "inst-5",
+      "moduleId": "mod-5",
+      "moduleName": "SteeringController",
+      "instance_id": 1,
+      "name": "SteerCtrl_PID",
+      "x": 1080,
+      "y": 150,
+      "activation": "PERIODIC",
+      "period_us": 10000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "steer_angle_in", "fifo_depth": 4, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "torque_out", "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 1,
+      "affinity_group": "control",
+      "state": "ACTIVE"
+    },
+    {
+      "id": "inst-6",
+      "moduleId": "mod-6",
+      "moduleName": "SteeringActuator",
+      "instance_id": 1,
+      "name": "EPS_Actuator",
+      "x": 1330,
+      "y": 150,
+      "activation": "PERIODIC",
+      "period_us": 10000,
+      "min_interarrival_us": 0,
+      "input_configs": [
+        { "port_name": "torque_in", "fifo_depth": 4, "mandatory": true, "mode": "ALL", "consume_count": 1, "overflow_policy": "DROP_OLDEST" }
+      ],
+      "output_configs": [
+        { "port_name": "actuator_cmd", "burst_size": 1, "suggested_min_depth": 2 }
+      ],
+      "allowed_cores_mask": 65535,
+      "preferred_core": 1,
+      "affinity_group": "control",
+      "state": "ACTIVE"
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn-1",
+      "fromInstanceId": "inst-1",
+      "fromPort": 0,
+      "toInstanceId": "inst-2",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "conn-2",
+      "fromInstanceId": "inst-2",
+      "fromPort": 0,
+      "toInstanceId": "inst-3",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "conn-3",
+      "fromInstanceId": "inst-3",
+      "fromPort": 0,
+      "toInstanceId": "inst-4",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "conn-4",
+      "fromInstanceId": "inst-4",
+      "fromPort": 0,
+      "toInstanceId": "inst-5",
+      "toPort": 0,
+      "doubleBuffer": false
+    },
+    {
+      "id": "conn-5",
+      "fromInstanceId": "inst-5",
+      "fromPort": 0,
+      "toInstanceId": "inst-6",
+      "toPort": 0,
+      "doubleBuffer": false
+    }
+  ],
+  "useCases": [
+    {
+      "id": "uc-1",
+      "name": "LKA_Active",
+      "description": "Full LKA pipeline active — camera to EPS actuation",
+      "instanceIds": ["inst-1", "inst-2", "inst-3", "inst-4", "inst-5", "inst-6"],
+      "active": true
+    }
+  ],
+  "nextInstanceCounters": {
+    "mod-1": 1,
+    "mod-2": 1,
+    "mod-3": 1,
+    "mod-4": 1,
+    "mod-5": 1,
+    "mod-6": 1
+  }
+}

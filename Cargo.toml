@@ -1,3 +1,35 @@
 [workspace]
-members = ["edf-core", "edf-server"]
+members = [
+    "edf-core",
+    "edf-server",
+    "modules/gain",
+    "modules/fir_filter",
+    "modules/noise_reduction",
+    "modules/down_sampling",
+    "modules/lane_camera",
+    "modules/lane_detection",
+    "modules/lane_position",
+    "modules/path_planner",
+    "modules/steering_controller",
+    "modules/steering_actuator",
+    "modules/mic_capture",
+    "modules/speaker_output",
+    "modules/aec",
+    "modules/beam_forming",
+    "modules/vad",
+    "modules/cng",
+    "modules/agc",
+    "modules/equalizer",
+    "modules/sample_rate_converter",
+    "modules/amr_codec",
+    "modules/jitter_buffer",
+    "modules/dtx",
+    "modules/bt_audio",
+    "modules/ringtone_gen",
+    "modules/mixer",
+    "modules/limiter",
+]
 resolver = "2"
+
+[patch."https://github.com/guizmo31/EarlyDeadlineFirst.git"]
+edf-core = { path = "edf-core" }

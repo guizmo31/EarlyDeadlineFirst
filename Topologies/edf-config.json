@@ -1,0 +1,36 @@
+{
+  "tick_period_ms": 1,
+  "simulation_duration_ms": 1000,
+  "num_cores": 1,
+  "fixed_partitioning": true,
+  "processes": [
+    {
+      "name": "gain/1",
+      "period_ms": 10,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null
+    },
+    {
+      "name": "NoiseReduction/1",
+      "period_ms": 30,
+      "cpu_time_ms": 2,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": [
+        "gain/1"
+      ]
+    },
+    {
+      "name": "gain/2",
+      "period_ms": 10,
+      "cpu_time_ms": 1,
+      "priority": 0,
+      "pinned_core": null,
+      "dependencies": [
+        "NoiseReduction/1"
+      ]
+    }
+  ],
+  "use_cases": []
+}

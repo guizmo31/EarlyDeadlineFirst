@@ -21,12 +21,19 @@ header {
     background: #16213e;
     padding: 16px 24px;
     border-bottom: 2px solid #0f3460;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 header h1 {
     font-size: 1.4rem;
     color: #e94560;
 }
+
+/* nav styles in /shared/nav.css */
+.topology-badge { font-size: 0.8rem; color: #f9c74f; background: rgba(249,199,79,0.12); border: 1px solid rgba(249,199,79,0.3); padding: 2px 10px; border-radius: 10px; white-space: nowrap; }
+.topology-badge:empty { display: none; }
 
 main {
     display: flex;
@@ -337,6 +344,25 @@ input[type="number"]:focus, input[type="text"]:focus {
     overflow: hidden;
 }
 
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.chart-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #e94560;
+}
+.chart-header .btn {
+    margin-top: 0;
+    width: auto;
+    padding: 6px 18px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
 #chart-panel h2 {
     font-size: 1.1rem;
     margin-bottom: 12px;
@@ -458,4 +484,53 @@ input[type="number"]:focus, input[type="text"]:focus {
 .utilization-overload {
     color: #e94560;
     font-weight: bold;
+}
+
+/* Schedulability analysis box */
+#schedulability-box {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid;
+}
+#schedulability-box.hidden { display: none; }
+#schedulability-box.verdict-pass {
+    background: #1a3a1a;
+    border-color: #2d6a2d;
+    color: #90be6d;
+}
+#schedulability-box.verdict-fail {
+    background: #3a1a1a;
+    border-color: #e94560;
+    color: #ff9999;
+}
+#schedulability-box.verdict-inconclusive {
+    background: #3a3a1a;
+    border-color: #f9c74f;
+    color: #ffcc00;
+}
+#schedulability-box h4 {
+    margin: 0 0 6px;
+    font-size: 0.9rem;
+}
+#schedulability-box .analysis-details {
+    font-size: 0.8rem;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+}
+#schedulability-box .analysis-details li {
+    margin: 2px 0;
+}
+
+/* Budget overruns & degraded events */
+#budget-overruns, #degraded-events {
+    margin-top: 8px;
+    font-size: 0.85rem;
+}
+#budget-overruns:empty, #degraded-events:empty { display: none; }
+.overrun-item, .degraded-item {
+    color: #ff9999;
+    margin: 2px 0;
 }
